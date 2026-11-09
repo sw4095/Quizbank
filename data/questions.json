@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-11-09T03:39:53.014Z",
+  "updated": "2026-11-09T03:58:18.803Z",
   "questions": [
     {
       "id": "qmw8pjktdlpofr",
@@ -29,6 +29,25 @@
       "qimgs": [],
       "imgs": [],
       "created": 1794195593014
+    },
+    {
+      "id": "qmw8qdz6cnr9ba",
+      "q": "다음 중 기계적 성질에 해당하지 않는 것은?",
+      "a": "",
+      "e": "",
+      "choices": [
+        "연성",
+        "인성",
+        "전성",
+        "자성",
+        "탄성계수"
+      ],
+      "correct": 3,
+      "qimgs": [],
+      "imgs": [
+        "data/img/qmw8qdz6cnr9ba-zyrbqu.png"
+      ],
+      "created": 1794196698803
     }
   ]
 }
