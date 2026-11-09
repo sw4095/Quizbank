@@ -161,6 +161,35 @@ pre.fmt { background: var(--paper); border: 1px solid var(--line); border-radius
 @media (max-width: 480px) { .grid2 { grid-template-columns: 1fr; } }
 ol.steps { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; font-size: 14px; }
 .ok { color: var(--keep); }
+.choices { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.choice {
+  width: 100%; text-align: left; font: inherit; color: var(--ink); background: var(--card);
+  border: 1px solid var(--line); border-radius: 10px; padding: 11px 14px; cursor: pointer;
+  display: flex; gap: 10px; align-items: flex-start; line-height: 1.5;
+}
+.choice:hover:not(:disabled) { border-color: var(--accent); }
+.choice:disabled { cursor: default; }
+.choice .no { font-weight: 700; color: var(--muted); min-width: 1.4em; font-variant-numeric: tabular-nums; }
+.choice .tx { white-space: pre-wrap; overflow-wrap: anywhere; flex: 1; }
+.choice .tag { font-size: 12px; font-weight: 700; white-space: nowrap; }
+.choice.right { border-color: var(--keep); background: color-mix(in srgb, var(--keep) 10%, var(--card)); }
+.choice.right .no, .choice.right .tag { color: var(--keep); }
+.choice.wrong { border-color: var(--drop); background: color-mix(in srgb, var(--drop) 9%, var(--card)); }
+.choice.wrong .no, .choice.wrong .tag { color: var(--drop); }
+.choice.picked:not(.right):not(.wrong) { border-color: var(--accent); }
+.verdict { font-weight: 700; }
+.verdict.good { color: var(--keep); }
+.verdict.bad { color: var(--drop); }
+.ch-rows { display: flex; flex-direction: column; gap: 8px; }
+.ch-row { display: flex; gap: 8px; align-items: center; }
+.ch-row .no { font-weight: 700; color: var(--muted); width: 1.6em; text-align: center; }
+.ch-row input[type="text"] {
+  flex: 1; min-width: 0; font: inherit; color: var(--ink); background: var(--paper);
+  border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px;
+}
+.ch-row label.rad { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; color: var(--muted); white-space: nowrap; cursor: pointer; }
+.ch-row label.rad:has(input:checked) { color: var(--keep); font-weight: 600; }
+.ch-row .x { width: 30px; height: 30px; border-radius: 6px; border: 1px solid var(--line); background: var(--card); color: var(--muted); cursor: pointer; font-size: 16px; }
 .err { color: var(--drop); }
 </style>
 </head>
@@ -212,7 +241,12 @@ ol.steps { margin: 0; padding-left: 20px; display: flex; flex-direction: column;
           </div>
         </div>
         <div class="field">
-          <label for="inA">답</label>
+          <label>객관식 보기 <small>(선택 · 정답 보기를 체크하면 풀 때 바로 채점돼요)</small></label>
+          <div class="ch-rows" id="chRows"></div>
+          <div class="row" id="chBtns"></div>
+        </div>
+        <div class="field">
+          <label for="inA">답 <small id="ansHint"></small></label>
           <textarea id="inA" rows="2" placeholder="예) 4년"></textarea>
         </div>
         <div class="field">
@@ -242,7 +276,9 @@ ol.steps { margin: 0; padding-left: 20px; display: flex; flex-direction: column;
           <textarea id="inBulk" rows="12" placeholder="Q: 첫 번째 문제&#10;A: 답&#10;E: 해설&#10;---&#10;Q: 두 번째 문제&#10;A: 답"></textarea>
         </div>
         <pre class="fmt">Q: 문제 (여러 줄 가능)
-A: 답
+① 보기1        ← 객관식이면 보기를 ①~⑨ 또는 1) 2) 로
+② 보기2
+A: 답          ← 객관식은 A: ② 또는 A: 2 처럼 번호만 써도 돼요
 E: 해설 (선택, 여러 줄 가능)
 ---          ← 문제 사이 구분선</pre>
         <p class="hint" style="margin:0">사진은 저장한 뒤 ‘문제 목록’에서 수정을 눌러 붙일 수 있어요.</p>
@@ -433,6 +469,16 @@ E: 해설 (선택, 여러 줄 가능)
     if (!Array.isArray(x.imgs)) x.imgs = [];
     if (!Array.isArray(x.qimgs)) x.qimgs = [];
     if (typeof x.q !== "string") x.q = "";
+    if (typeof x.a !== "string") x.a = "";
+    if (!Array.isArray(x.choices)) x.choices = [];
+    if (typeof x.correct !== "number" || x.correct < 0 || x.correct >= x.choices.length) x.correct = -1;
+  }
+  const CIRCLED = "①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮";
+  const circ = (i) => CIRCLED[i] || String(i + 1) + ")";
+  function answerText(it) {
+    if (it.a) return it.a;
+    if (it.correct >= 0) return circ(it.correct) + " " + it.choices[it.correct];
+    return "";
   }
 
   // ================= 불러오기 =================
@@ -517,7 +563,7 @@ E: 해설 (선택, 여러 줄 가능)
   }
 
   // ================= 문제 풀기 =================
-  let current = null, revealed = false, lastId = null, sessionCount = 0;
+  let current = null, revealed = false, lastId = null, sessionCount = 0, picked = -1;
   const active = () => questions.filter(x => !isOff(x.id));
 
   function pickNext() {
@@ -525,7 +571,7 @@ E: 해설 (선택, 여러 줄 가능)
     if (!pool.length) { current = null; return; }
     const cands = pool.length > 1 ? pool.filter(x => x.id !== lastId) : pool;
     current = cands[Math.floor(Math.random() * cands.length)].id;
-    revealed = false;
+    revealed = false; picked = -1;
   }
 
   function renderQuiz() {
@@ -549,15 +595,22 @@ E: 해설 (선택, 여러 줄 가능)
       el("span", { text: "출제 중 " + active().length + "문제" + (rv ? " · 이 문제 " + rv + "번 봄" : "") })));
     if (it.q) card.appendChild(el("p", { class: "qtext", text: it.q }));
     if (it.qimgs.length) card.appendChild(photoBlock(it.qimgs, "문제 사진"));
+    if (it.choices.length) card.appendChild(choiceList(it));
 
     if (!revealed) {
-      card.appendChild(el("div", { class: "cover", text: "답과 해설이 가려져 있어요. 먼저 머릿속으로 답을 떠올려 보세요." }));
+      const mc = it.choices.length > 0;
+      card.appendChild(el("div", { class: "cover", text: mc ? "보기를 고르면 바로 정답과 해설이 나와요. 고르지 않고 답만 볼 수도 있어요." : "답과 해설이 가려져 있어요. 먼저 머릿속으로 답을 떠올려 보세요." }));
       card.appendChild(el("div", { class: "actions" },
-        el("button", { class: "btn primary", text: "답·해설 보기", onclick: () => { revealed = true; renderQuiz(); const k = $("keepBtn"); if (k) k.focus(); } })));
-      card.appendChild(el("div", { class: "hint", text: "단축키: Space 또는 Enter로 답 보기" }));
+        el("button", { class: mc ? "btn" : "btn primary", text: "답·해설 보기", onclick: () => reveal() })));
+      card.appendChild(el("div", { class: "hint", text: mc ? "단축키: 숫자 키로 보기 고르기 · Space 또는 Enter로 답 보기" : "단축키: Space 또는 Enter로 답 보기" }));
     } else {
       const box = el("div", { class: "answer-box" });
-      box.appendChild(el("div", null, el("div", { class: "label", text: "답" }), el("div", { class: "ans" }, el("span", { text: it.a }))));
+      if (picked >= 0 && it.correct >= 0) {
+        box.appendChild(picked === it.correct
+          ? el("div", { class: "verdict good", text: "정답이에요!" })
+          : el("div", { class: "verdict bad", text: "아쉬워요. " + circ(picked) + "번을 골랐어요." }));
+      }
+      box.appendChild(el("div", null, el("div", { class: "label", text: "답" }), el("div", { class: "ans" }, el("span", { text: answerText(it) }))));
       const hasText = it.e && it.e.trim(), hasImg = it.imgs.length;
       if (hasText || hasImg) {
         const ex = el("div", null, el("div", { class: "label", text: "해설" }));
@@ -571,6 +624,32 @@ E: 해설 (선택, 여러 줄 가능)
         el("button", { class: "btn drop", text: "이후로 안 보기", onclick: () => next(it, true) })));
       card.appendChild(el("div", { class: "hint", text: "단축키: 1 다음에 또 보기 · 2 이후로 안 보기 · 사진은 누르면 크게 보여요" }));
     }
+  }
+
+  function reveal(i) {
+    if (revealed) return;
+    if (typeof i === "number") picked = i;
+    revealed = true; renderQuiz();
+    const k = $("keepBtn"); if (k) k.focus();
+  }
+
+  function choiceList(it) {
+    const ul = el("ul", { class: "choices" });
+    it.choices.forEach((c, i) => {
+      let cls = "choice", tag = "";
+      if (revealed) {
+        if (i === it.correct) { cls += " right"; tag = "정답"; }
+        else if (i === picked && it.correct >= 0) { cls += " wrong"; tag = "내 선택"; }
+        else if (i === picked) { cls += " picked"; tag = "내 선택"; }
+      }
+      const b = el("button", { type: "button", class: cls, onclick: () => reveal(i) },
+        el("span", { class: "no", text: circ(i) }),
+        el("span", { class: "tx", text: c }),
+        tag ? el("span", { class: "tag", text: tag }) : null);
+      if (revealed) b.disabled = true;
+      ul.appendChild(el("li", null, b));
+    });
+    return ul;
   }
 
   function photoBlock(paths, name) {
@@ -589,7 +668,7 @@ E: 해설 (선택, 여러 줄 가능)
     progress.reviews[it.id] = reviewsOf(it.id) + 1;
     if (drop) progress.off[it.id] = true;
     saveProgress();
-    current = null; revealed = false;
+    current = null; revealed = false; picked = -1;
     render();
     if (drop) showToast("이 문제는 이 기기에서 더 이상 출제되지 않아요.", () => { delete progress.off[it.id]; saveProgress(); render(); });
   }
@@ -600,7 +679,8 @@ E: 해설 (선택, 여러 줄 가능)
     if (tag === "textarea" || tag === "input" || tag === "summary") return;
     const it = questions.find(x => x.id === current);
     if (!it) return;
-    if (!revealed && (e.key === " " || e.key === "Enter") && tag !== "button") { e.preventDefault(); revealed = true; renderQuiz(); }
+    if (!revealed && (e.key === " " || e.key === "Enter") && tag !== "button") { e.preventDefault(); reveal(); }
+    else if (!revealed && /^[1-9]$/.test(e.key) && Number(e.key) <= it.choices.length) reveal(Number(e.key) - 1);
     else if (revealed && e.key === "1") next(it, false);
     else if (revealed && e.key === "2") next(it, true);
   });
@@ -672,13 +752,64 @@ E: 해설 (선택, 여러 줄 가능)
     }
     return { qimgs: drafts.Q.map(d => d.path), imgs: drafts.E.map(d => d.path) };
   }
+  // 객관식 보기 편집
+  let chDraft = [];       // string[]
+  let chCorrect = -1;
+  function syncChoicesFromDOM() {
+    chDraft = Array.from(document.querySelectorAll("#chRows input[type=text]")).map(x => x.value);
+  }
+  function renderChoices(focusIdx) {
+    const rows = $("chRows"); rows.replaceChildren();
+    chDraft.forEach((v, i) => {
+      const inp = el("input", { type: "text", id: "ch" + i, "aria-label": "보기 " + (i + 1), placeholder: "보기 " + (i + 1) });
+      inp.value = v;
+      inp.addEventListener("input", () => { chDraft[i] = inp.value; });
+      inp.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); if (i === chDraft.length - 1) addChoice(); else $("ch" + (i + 1)).focus(); } });
+      const rad = el("input", { type: "radio", name: "chCorrect", id: "chc" + i });
+      rad.checked = i === chCorrect;
+      rad.addEventListener("change", () => { chCorrect = i; updateAnsHint(); });
+      rows.appendChild(el("div", { class: "ch-row" },
+        el("span", { class: "no", text: circ(i) }),
+        inp,
+        el("label", { class: "rad", for: "chc" + i }, rad, document.createTextNode("정답")),
+        el("button", { type: "button", class: "x", "aria-label": "보기 " + (i + 1) + " 지우기", text: "×", onclick: () => removeChoice(i) })));
+    });
+    const btns = $("chBtns"); btns.replaceChildren();
+    if (!chDraft.length) {
+      btns.appendChild(el("button", { type: "button", class: "btn small", text: "보기 4개 만들기", onclick: () => { chDraft = ["", "", "", ""]; renderChoices(0); } }));
+      btns.appendChild(el("button", { type: "button", class: "btn small", text: "보기 5개 만들기", onclick: () => { chDraft = ["", "", "", "", ""]; renderChoices(0); } }));
+    } else {
+      if (chDraft.length < CIRCLED.length) btns.appendChild(el("button", { type: "button", class: "btn small", text: "+ 보기 추가", onclick: () => addChoice() }));
+      btns.appendChild(el("button", { type: "button", class: "btn small", text: "보기 모두 지우기", onclick: () => { chDraft = []; chCorrect = -1; renderChoices(); } }));
+    }
+    updateAnsHint();
+    if (typeof focusIdx === "number" && $("ch" + focusIdx)) $("ch" + focusIdx).focus();
+  }
+  function addChoice() { syncChoicesFromDOM(); chDraft.push(""); renderChoices(chDraft.length - 1); }
+  function removeChoice(i) {
+    syncChoicesFromDOM(); chDraft.splice(i, 1);
+    if (chCorrect === i) chCorrect = -1; else if (chCorrect > i) chCorrect--;
+    renderChoices();
+  }
+  function updateAnsHint() {
+    $("ansHint").textContent = chCorrect >= 0 ? "(정답 보기를 골랐으니 비워 둬도 돼요)" : chDraft.length ? "(정답 보기를 체크하거나 답을 적어 주세요)" : "";
+  }
+
   const label = (q) => (q || "(사진 문제)").replace(/\s+/g, " ").slice(0, 40);
 
   $("formOne").addEventListener("submit", async (e) => {
     e.preventDefault();
     if (busy) return;
     const q = $("inQ").value.trim(), a = $("inA").value.trim(), ex = $("inE").value.trim();
-    if ((!q && !drafts.Q.length) || !a) { $("oneMsg").textContent = "문제(글이나 사진)와 답을 입력해 주세요."; return; }
+    syncChoicesFromDOM();
+    // 빈 보기는 빼고, 정답 번호도 그에 맞춰 옮김
+    const choices = [], map = [];
+    chDraft.forEach((c, i) => { const t = c.trim(); if (t) { map[i] = choices.length; choices.push(t); } });
+    const correct = chCorrect >= 0 && map[chCorrect] !== undefined ? map[chCorrect] : -1;
+    if (chCorrect >= 0 && correct < 0) { $("oneMsg").textContent = "정답으로 고른 보기가 비어 있어요."; return; }
+    if (!q && !drafts.Q.length) { $("oneMsg").textContent = "문제를 글이나 사진으로 입력해 주세요."; return; }
+    if (!a && correct < 0) { $("oneMsg").textContent = choices.length ? "정답 보기를 체크하거나 답을 적어 주세요." : "답을 입력해 주세요."; return; }
+    if (choices.length === 1) { $("oneMsg").textContent = "객관식 보기는 2개 이상 넣어 주세요."; return; }
     busy = true; $("saveOne").disabled = true;
     const msg = $("oneMsg");
     try {
@@ -690,7 +821,7 @@ E: 해설 (선택, 여러 줄 가능)
       if (editingId) {
         await mutateQuestions(list => {
           const i = list.findIndex(x => x.id === id);
-          const rec = Object.assign({}, i >= 0 ? list[i] : { id, created: Date.now() }, { q, a, e: ex, qimgs, imgs });
+          const rec = Object.assign({}, i >= 0 ? list[i] : { id, created: Date.now() }, { q, a, e: ex, choices, correct, qimgs, imgs });
           if (i >= 0) list[i] = rec; else list.push(rec);
           return list;
         }, "문제 수정: " + label(q));
@@ -698,7 +829,7 @@ E: 해설 (선택, 여러 줄 가능)
         for (const p of before.filter(p => !keep.includes(p))) { try { await ghDelete(p, "사진 삭제: " + p); } catch (err) {} }
         endEdit(); setView("list"); showToast("수정했어요.", null);
       } else {
-        await mutateQuestions(list => { list.push({ id, q, a, e: ex, qimgs, imgs, created: Date.now() }); return list; }, "문제 추가: " + label(q));
+        await mutateQuestions(list => { list.push({ id, q, a, e: ex, choices, correct, qimgs, imgs, created: Date.now() }); return list; }, "문제 추가: " + label(q));
         clearForm(); msg.textContent = "저장했어요. 다음 문제를 입력하세요."; $("inQ").focus();
       }
     } catch (err) { msg.textContent = friendly(err); }
@@ -706,7 +837,7 @@ E: 해설 (선택, 여러 줄 가능)
   });
   $("cancelEdit").addEventListener("click", () => { endEdit(); setView("list"); });
 
-  function clearForm() { $("inQ").value = ""; $("inA").value = ""; $("inE").value = ""; drafts.Q = []; drafts.E = []; renderThumbs(); }
+  function clearForm() { $("inQ").value = ""; $("inA").value = ""; $("inE").value = ""; drafts.Q = []; drafts.E = []; renderThumbs(); chDraft = []; chCorrect = -1; renderChoices(); }
   function startEdit(it) {
     if (!admin) return;
     editingId = it.id;
@@ -714,6 +845,7 @@ E: 해설 (선택, 여러 줄 가능)
     drafts.Q = it.qimgs.map(p => ({ path: p }));
     drafts.E = it.imgs.map(p => ({ path: p }));
     renderThumbs();
+    chDraft = it.choices.slice(); chCorrect = it.correct; renderChoices();
     $("saveOne").textContent = "수정 저장"; $("cancelEdit").hidden = false; $("oneMsg").textContent = "";
     setMode(false); setView("add"); $("inQ").focus();
   }
@@ -724,18 +856,34 @@ E: 해설 (선택, 여러 줄 가능)
 
   function parseBulk(text) {
     const out = [];
+    const CH_RE = /^\s*(?:([①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮])|\(?(\d{1,2})[).])\s*(.*)$/;
     text.split(/^\s*-{3,}\s*$/m).forEach(block => {
-      let cur = null; const f = { q: [], a: [], e: [] };
+      let cur = null; const f = { q: [], a: [], e: [] }; const choices = [];
       block.split("\n").forEach(line => {
         const m = line.match(/^\s*(Q|A|E|문제|답|해설)\s*[:：]\s?(.*)$/i);
         if (m) {
           const k = m[1].toUpperCase();
           cur = (k === "Q" || k === "문제") ? "q" : (k === "A" || k === "답") ? "a" : "e";
           f[cur].push(m[2]);
-        } else if (cur) f[cur].push(line);
+          return;
+        }
+        if (cur === "q" || cur === "c") {
+          const c = line.match(CH_RE);
+          if (c && f.q.length) { choices.push(c[3].trim()); cur = "c"; return; }
+          if (cur === "c") { if (line.trim()) choices[choices.length - 1] += "\n" + line.trim(); return; }
+        }
+        if (cur) f[cur].push(line);
       });
-      const q = f.q.join("\n").trim(), a = f.a.join("\n").trim(), e = f.e.join("\n").trim();
-      if (q || a) out.push({ q, a, e });
+      const q = f.q.join("\n").trim(), e = f.e.join("\n").trim();
+      let a = f.a.join("\n").trim(), correct = -1;
+      if (choices.length) {
+        const m = a.match(/^\s*(?:([①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮])|(\d{1,2}))\s*(?:번)?\s*$/);
+        if (m) {
+          const idx = m[1] ? CIRCLED.indexOf(m[1]) : Number(m[2]) - 1;
+          if (idx >= 0 && idx < choices.length) { correct = idx; a = ""; }
+        }
+      }
+      if (q || a || correct >= 0) out.push({ q, a, e, choices, correct });
     });
     return out;
   }
@@ -743,13 +891,13 @@ E: 해설 (선택, 여러 줄 가능)
     ev.preventDefault();
     if (busy) return;
     const list = parseBulk($("inBulk").value);
-    const good = list.filter(x => x.q && x.a);
+    const good = list.filter(x => x.q && (x.a || x.correct >= 0));
     const bad = list.length - good.length;
     if (!good.length) { $("bulkMsg").textContent = "읽을 수 있는 문제가 없어요. Q:와 A: 줄이 있는지 확인해 주세요."; return; }
     busy = true; $("saveBulk").disabled = true; $("bulkMsg").textContent = "저장 중…";
     try {
       const now = Date.now();
-      const recs = good.map((x, i) => ({ id: newId() + i, q: x.q, a: x.a, e: x.e, qimgs: [], imgs: [], created: now + i }));
+      const recs = good.map((x, i) => ({ id: newId() + i, q: x.q, a: x.a, e: x.e, choices: x.choices, correct: x.correct, qimgs: [], imgs: [], created: now + i }));
       await mutateQuestions(l => l.concat(recs), "문제 " + recs.length + "개 추가");
       $("inBulk").value = "";
       $("bulkMsg").textContent = recs.length + "개 저장했어요." + (bad ? " 문제나 답이 빠진 " + bad + "개는 건너뛰었어요." : "");
@@ -781,7 +929,7 @@ E: 해설 (선택, 여러 줄 가능)
     const term = $("search").value.trim().toLowerCase();
     const rows = questions
       .filter(x => filter === "all" || (filter === "on" ? !isOff(x.id) : isOff(x.id)))
-      .filter(x => !term || (x.q + "\n" + x.a + "\n" + (x.e || "")).toLowerCase().includes(term))
+      .filter(x => !term || (x.q + "\n" + x.a + "\n" + (x.e || "") + "\n" + x.choices.join("\n")).toLowerCase().includes(term))
       .sort((a, b) => (b.created || 0) - (a.created || 0));
     if (!rows.length) {
       box.appendChild(el("div", { class: "empty", text: loadError || (questions.length ? "조건에 맞는 문제가 없어요." : "아직 등록된 문제가 없어요.") }));
@@ -801,7 +949,7 @@ E: 해설 (선택, 여러 줄 가능)
           : el("button", { class: "btn small", text: "삭제", onclick: () => { confirmDel = it.id; renderList(); } }));
       box.appendChild(el("div", { class: "item" + (off ? " hidden" : "") },
         el("div", { class: "q", text: it.q || "(사진 문제)" }),
-        el("div", { class: "a", text: "답: " + it.a }),
+        el("div", { class: "a", text: (it.choices.length ? "객관식 " + it.choices.length + "지선다 · " : "") + "답: " + answerText(it) }),
         bar));
     });
   }
@@ -867,6 +1015,7 @@ E: 해설 (선택, 여러 줄 가능)
     if (view === "list") renderList();
   }
 
+  renderChoices();
   render();
   loadQuestions();
 })();
