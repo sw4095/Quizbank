@@ -202,6 +202,16 @@ ol.steps { margin: 0; padding-left: 20px; display: flex; flex-direction: column;
           <textarea id="inQ" rows="4" placeholder="예) 대한민국 헌법상 국회의원의 임기는?"></textarea>
         </div>
         <div class="field">
+          <label for="inImgQ">문제 사진 <small>(선택, 여러 장 가능 · 문제와 함께 바로 보여요)</small></label>
+          <div class="drop-zone" id="dropZoneQ">
+            <div class="row">
+              <label class="btn small" for="inImgQ" style="position:relative">사진 첨부<input type="file" id="inImgQ" accept="image/*" multiple></label>
+              <span class="hint">끌어다 놓기, Ctrl+V 붙여넣기도 돼요.</span>
+            </div>
+            <div class="thumbs" id="thumbsQ"></div>
+          </div>
+        </div>
+        <div class="field">
           <label for="inA">답</label>
           <textarea id="inA" rows="2" placeholder="예) 4년"></textarea>
         </div>
@@ -210,13 +220,13 @@ ol.steps { margin: 0; padding-left: 20px; display: flex; flex-direction: column;
           <textarea id="inE" rows="4" placeholder="예) 헌법 제42조: 국회의원의 임기는 4년으로 한다."></textarea>
         </div>
         <div class="field">
-          <label for="inImg">해설 사진 <small>(선택, 여러 장 가능)</small></label>
-          <div class="drop-zone" id="dropZone">
+          <label for="inImgE">해설 사진 <small>(선택, 여러 장 가능 · 답과 함께 가려져요)</small></label>
+          <div class="drop-zone" id="dropZoneE">
             <div class="row">
-              <label class="btn small" for="inImg" style="position:relative">사진 첨부<input type="file" id="inImg" accept="image/*" multiple></label>
-              <span class="hint">파일을 끌어다 놓거나, 캡처한 이미지를 Ctrl+V로 붙여넣어도 돼요.</span>
+              <label class="btn small" for="inImgE" style="position:relative">사진 첨부<input type="file" id="inImgE" accept="image/*" multiple></label>
+              <span class="hint">끌어다 놓기, Ctrl+V 붙여넣기도 돼요.</span>
             </div>
-            <div class="thumbs" id="thumbs"></div>
+            <div class="thumbs" id="thumbsE"></div>
           </div>
         </div>
         <div class="row">
@@ -400,7 +410,7 @@ E: 해설 (선택, 여러 줄 가능)
       const json = JSON.stringify({ version: 1, updated: new Date().toISOString(), questions: next }, null, 2) + "\n";
       try {
         await ghPut(DATA_PATH, b64encodeText(json), message, cur.sha);
-        questions = next; render();
+        questions = next; questions.forEach(normalize); render();
         return next;
       } catch (e) {
         if (e.status === 409 || e.status === 422) continue;
@@ -417,6 +427,12 @@ E: 해설 (선택, 여러 줄 가능)
     if (e.status === 404) return "저장소를 찾을 수 없어요. 아이디와 저장소 이름을 확인해 주세요.";
     if (e instanceof TypeError) return "인터넷 연결을 확인해 주세요.";
     return e.message || "저장하지 못했어요.";
+  }
+
+  function normalize(x) {
+    if (!Array.isArray(x.imgs)) x.imgs = [];
+    if (!Array.isArray(x.qimgs)) x.qimgs = [];
+    if (typeof x.q !== "string") x.q = "";
   }
 
   // ================= 불러오기 =================
@@ -436,7 +452,7 @@ E: 해설 (선택, 여러 줄 가능)
       loadError = admin ? friendly(e) : "문제를 불러오지 못했어요. 새로고침해 보세요.";
       if (!questions.length) questions = [];
     }
-    questions.forEach(x => { if (!Array.isArray(x.imgs)) x.imgs = []; });
+    questions.forEach(normalize);
     ready = true;
     render();
   }
@@ -531,7 +547,8 @@ E: 해설 (선택, 여러 줄 가능)
     card.appendChild(el("div", { class: "qmeta" },
       el("span", { text: "이번에 푼 문제 " + sessionCount + "개" }),
       el("span", { text: "출제 중 " + active().length + "문제" + (rv ? " · 이 문제 " + rv + "번 봄" : "") })));
-    card.appendChild(el("p", { class: "qtext", text: it.q }));
+    if (it.q) card.appendChild(el("p", { class: "qtext", text: it.q }));
+    if (it.qimgs.length) card.appendChild(photoBlock(it.qimgs, "문제 사진"));
 
     if (!revealed) {
       card.appendChild(el("div", { class: "cover", text: "답과 해설이 가려져 있어요. 먼저 머릿속으로 답을 떠올려 보세요." }));
@@ -545,16 +562,7 @@ E: 해설 (선택, 여러 줄 가능)
       if (hasText || hasImg) {
         const ex = el("div", null, el("div", { class: "label", text: "해설" }));
         if (hasText) ex.appendChild(el("div", { class: "exp", text: it.e }));
-        if (hasImg) {
-          const ph = el("div", { class: "photos" });
-          it.imgs.forEach((p, i) => {
-            const img = el("img", { alt: "해설 사진 " + (i + 1) });
-            attachImg(img, p);
-            img.addEventListener("click", () => openViewer(img.src));
-            ph.appendChild(img);
-          });
-          ex.appendChild(ph);
-        }
+        if (hasImg) ex.appendChild(photoBlock(it.imgs, "해설 사진"));
         box.appendChild(ex);
       }
       card.appendChild(box);
@@ -563,6 +571,17 @@ E: 해설 (선택, 여러 줄 가능)
         el("button", { class: "btn drop", text: "이후로 안 보기", onclick: () => next(it, true) })));
       card.appendChild(el("div", { class: "hint", text: "단축키: 1 다음에 또 보기 · 2 이후로 안 보기 · 사진은 누르면 크게 보여요" }));
     }
+  }
+
+  function photoBlock(paths, name) {
+    const ph = el("div", { class: "photos" });
+    paths.forEach((p, i) => {
+      const img = el("img", { alt: name + " " + (i + 1) });
+      attachImg(img, p);
+      img.addEventListener("click", () => openViewer(img.src));
+      ph.appendChild(img);
+    });
+    return ph;
   }
 
   function next(it, drop) {
@@ -588,7 +607,8 @@ E: 해설 (선택, 여러 줄 가능)
 
   // ================= 입력 (관리자) =================
   let editingId = null;
-  let draft = [];   // [{path} | {blob, url}]
+  const drafts = { Q: [], E: [] };   // 각 [{path} | {blob, url}]
+  let pasteZone = "E";               // Ctrl+V 붙여넣기가 들어갈 곳
   let busy = false;
 
   function setMode(bulk) {
@@ -599,77 +619,86 @@ E: 해설 (선택, 여러 줄 가능)
   $("modeOne").addEventListener("click", () => setMode(false));
   $("modeBulk").addEventListener("click", () => setMode(true));
 
-  function renderThumbs() {
-    const box = $("thumbs"); box.replaceChildren();
-    draft.forEach((d, i) => {
-      const img = el("img", { alt: "첨부 사진 " + (i + 1) });
+  function renderThumbs(z) {
+    if (!z) { renderThumbs("Q"); renderThumbs("E"); return; }
+    const box = $("thumbs" + z); box.replaceChildren();
+    drafts[z].forEach((d, i) => {
+      const img = el("img", { alt: (z === "Q" ? "문제" : "해설") + " 사진 " + (i + 1) });
       if (d.url) img.src = d.url; else attachImg(img, d.path);
       img.addEventListener("click", () => openViewer(img.src));
       box.appendChild(el("div", { class: "thumb" }, img,
-        el("button", { type: "button", "aria-label": "사진 " + (i + 1) + " 빼기", text: "×", onclick: () => { draft.splice(i, 1); renderThumbs(); } })));
+        el("button", { type: "button", "aria-label": "사진 " + (i + 1) + " 빼기", text: "×", onclick: () => { drafts[z].splice(i, 1); renderThumbs(z); } })));
     });
   }
-  async function addFiles(files) {
+  async function addFiles(z, files) {
     const list = Array.from(files || []).filter(f => f.type && f.type.startsWith("image/"));
     if (!list.length) return;
     $("oneMsg").textContent = "사진 준비 중…";
-    for (const f of list) { const b = await shrink(f); if (b) draft.push({ blob: b, url: URL.createObjectURL(b) }); }
+    for (const f of list) { const b = await shrink(f); if (b) drafts[z].push({ blob: b, url: URL.createObjectURL(b) }); }
     $("oneMsg").textContent = "";
-    renderThumbs();
+    renderThumbs(z);
   }
-  $("inImg").addEventListener("change", (e) => { addFiles(e.target.files); e.target.value = ""; });
-  const dz = $("dropZone");
-  dz.addEventListener("dragover", (e) => { e.preventDefault(); dz.classList.add("over"); });
-  dz.addEventListener("dragleave", () => dz.classList.remove("over"));
-  dz.addEventListener("drop", (e) => { e.preventDefault(); dz.classList.remove("over"); addFiles(e.dataTransfer.files); });
+  ["Q", "E"].forEach(z => {
+    $("inImg" + z).addEventListener("change", (e) => { addFiles(z, e.target.files); e.target.value = ""; });
+    const dz = $("dropZone" + z);
+    dz.addEventListener("dragover", (e) => { e.preventDefault(); dz.classList.add("over"); });
+    dz.addEventListener("dragleave", () => dz.classList.remove("over"));
+    dz.addEventListener("drop", (e) => { e.preventDefault(); dz.classList.remove("over"); addFiles(z, e.dataTransfer.files); });
+    dz.addEventListener("pointerdown", () => { pasteZone = z; });
+  });
+  $("inQ").addEventListener("focus", () => { pasteZone = "Q"; });
+  $("inA").addEventListener("focus", () => { pasteZone = "E"; });
+  $("inE").addEventListener("focus", () => { pasteZone = "E"; });
   document.addEventListener("paste", (e) => {
     if (view !== "add" || $("formOne").hidden) return;
     const files = Array.from(e.clipboardData ? e.clipboardData.files : []).filter(f => f.type.startsWith("image/"));
-    if (files.length) { e.preventDefault(); addFiles(files); }
+    if (files.length) { e.preventDefault(); addFiles(pasteZone, files); }
   });
 
   const newId = () => "q" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 
-  async function uploadDraftImages(qid, msgEl) {
-    const paths = [];
-    let n = 0; const total = draft.filter(d => d.blob).length;
-    for (const d of draft) {
-      if (d.path) { paths.push(d.path); continue; }
+  async function uploadDrafts(qid, msgEl) {
+    const all = drafts.Q.concat(drafts.E);
+    const total = all.filter(d => d.blob).length;
+    let n = 0;
+    for (const d of all) {
+      if (d.path) continue;
       n++; msgEl.textContent = "사진 올리는 중… (" + n + "/" + total + ")";
       const path = IMG_DIR + qid + "-" + Math.random().toString(36).slice(2, 8) + "." + extOf(d.blob);
       const bytes = new Uint8Array(await d.blob.arrayBuffer());
       await ghPut(path, b64encodeBytes(bytes), "사진 추가: " + path);
       localImg[path] = d.url;
       d.path = path; delete d.blob;
-      paths.push(path);
     }
-    return paths;
+    return { qimgs: drafts.Q.map(d => d.path), imgs: drafts.E.map(d => d.path) };
   }
+  const label = (q) => (q || "(사진 문제)").replace(/\s+/g, " ").slice(0, 40);
 
   $("formOne").addEventListener("submit", async (e) => {
     e.preventDefault();
     if (busy) return;
     const q = $("inQ").value.trim(), a = $("inA").value.trim(), ex = $("inE").value.trim();
-    if (!q || !a) { $("oneMsg").textContent = "문제와 답을 모두 입력해 주세요."; return; }
+    if ((!q && !drafts.Q.length) || !a) { $("oneMsg").textContent = "문제(글이나 사진)와 답을 입력해 주세요."; return; }
     busy = true; $("saveOne").disabled = true;
     const msg = $("oneMsg");
     try {
       const id = editingId || newId();
-      const before = editingId ? (questions.find(x => x.id === editingId) || { imgs: [] }).imgs.slice() : [];
-      const imgs = await uploadDraftImages(id, msg);
+      const old = editingId ? (questions.find(x => x.id === editingId) || {}) : {};
+      const before = (old.imgs || []).concat(old.qimgs || []);
+      const { qimgs, imgs } = await uploadDrafts(id, msg);
       msg.textContent = "저장 중…";
       if (editingId) {
         await mutateQuestions(list => {
           const i = list.findIndex(x => x.id === id);
-          const rec = Object.assign({}, i >= 0 ? list[i] : { id, created: Date.now() }, { q, a, e: ex, imgs });
+          const rec = Object.assign({}, i >= 0 ? list[i] : { id, created: Date.now() }, { q, a, e: ex, qimgs, imgs });
           if (i >= 0) list[i] = rec; else list.push(rec);
           return list;
-        }, "문제 수정: " + q.slice(0, 40));
-        const removed = before.filter(p => !imgs.includes(p));
-        for (const p of removed) { try { await ghDelete(p, "사진 삭제: " + p); } catch (err) {} }
+        }, "문제 수정: " + label(q));
+        const keep = qimgs.concat(imgs);
+        for (const p of before.filter(p => !keep.includes(p))) { try { await ghDelete(p, "사진 삭제: " + p); } catch (err) {} }
         endEdit(); setView("list"); showToast("수정했어요.", null);
       } else {
-        await mutateQuestions(list => { list.push({ id, q, a, e: ex, imgs, created: Date.now() }); return list; }, "문제 추가: " + q.slice(0, 40));
+        await mutateQuestions(list => { list.push({ id, q, a, e: ex, qimgs, imgs, created: Date.now() }); return list; }, "문제 추가: " + label(q));
         clearForm(); msg.textContent = "저장했어요. 다음 문제를 입력하세요."; $("inQ").focus();
       }
     } catch (err) { msg.textContent = friendly(err); }
@@ -677,12 +706,14 @@ E: 해설 (선택, 여러 줄 가능)
   });
   $("cancelEdit").addEventListener("click", () => { endEdit(); setView("list"); });
 
-  function clearForm() { $("inQ").value = ""; $("inA").value = ""; $("inE").value = ""; draft = []; renderThumbs(); }
+  function clearForm() { $("inQ").value = ""; $("inA").value = ""; $("inE").value = ""; drafts.Q = []; drafts.E = []; renderThumbs(); }
   function startEdit(it) {
     if (!admin) return;
     editingId = it.id;
     $("inQ").value = it.q; $("inA").value = it.a; $("inE").value = it.e || "";
-    draft = it.imgs.map(p => ({ path: p })); renderThumbs();
+    drafts.Q = it.qimgs.map(p => ({ path: p }));
+    drafts.E = it.imgs.map(p => ({ path: p }));
+    renderThumbs();
     $("saveOne").textContent = "수정 저장"; $("cancelEdit").hidden = false; $("oneMsg").textContent = "";
     setMode(false); setView("add"); $("inQ").focus();
   }
@@ -718,7 +749,7 @@ E: 해설 (선택, 여러 줄 가능)
     busy = true; $("saveBulk").disabled = true; $("bulkMsg").textContent = "저장 중…";
     try {
       const now = Date.now();
-      const recs = good.map((x, i) => ({ id: newId() + i, q: x.q, a: x.a, e: x.e, imgs: [], created: now + i }));
+      const recs = good.map((x, i) => ({ id: newId() + i, q: x.q, a: x.a, e: x.e, qimgs: [], imgs: [], created: now + i }));
       await mutateQuestions(l => l.concat(recs), "문제 " + recs.length + "개 추가");
       $("inBulk").value = "";
       $("bulkMsg").textContent = recs.length + "개 저장했어요." + (bad ? " 문제나 답이 빠진 " + bad + "개는 건너뛰었어요." : "");
@@ -738,8 +769,8 @@ E: 해설 (선택, 여러 줄 가능)
 
   async function removeQuestion(it) {
     try {
-      await mutateQuestions(list => list.filter(x => x.id !== it.id), "문제 삭제: " + it.q.slice(0, 40));
-      for (const p of it.imgs) { try { await ghDelete(p, "사진 삭제: " + p); } catch (e) {} }
+      await mutateQuestions(list => list.filter(x => x.id !== it.id), "문제 삭제: " + label(it.q));
+      for (const p of it.imgs.concat(it.qimgs)) { try { await ghDelete(p, "사진 삭제: " + p); } catch (e) {} }
       showToast("삭제했어요.", null);
     } catch (e) { showToast(friendly(e), null); }
   }
@@ -757,7 +788,7 @@ E: 해설 (선택, 여러 줄 가능)
       return;
     }
     rows.forEach(it => {
-      const off = isOff(it.id), n = it.imgs.length, rv = reviewsOf(it.id);
+      const off = isOff(it.id), n = it.imgs.length + it.qimgs.length, rv = reviewsOf(it.id);
       const bar = el("div", { class: "bar" },
         el("span", { class: "pill " + (off ? "off" : "on"), text: off ? "안 보기" : "출제 중" }),
         n ? el("span", { class: "hint", text: "사진 " + n + "장" }) : null,
@@ -769,7 +800,7 @@ E: 해설 (선택, 여러 줄 가능)
           ? el("button", { class: "btn small drop", text: "정말 삭제", onclick: () => { confirmDel = null; removeQuestion(it); } })
           : el("button", { class: "btn small", text: "삭제", onclick: () => { confirmDel = it.id; renderList(); } }));
       box.appendChild(el("div", { class: "item" + (off ? " hidden" : "") },
-        el("div", { class: "q", text: it.q }),
+        el("div", { class: "q", text: it.q || "(사진 문제)" }),
         el("div", { class: "a", text: "답: " + it.a }),
         bar));
     });
