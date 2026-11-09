@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#2346a8">
+<title>나만의 문제은행</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=Nanum+Myeongjo:wght@700;800&display=swap" rel="stylesheet">
+<style>
+/* Layout: one narrow study column — a single exam card in the middle, tabs above, list below. */
+:root {
+  --paper: #f4f5f1;
+  --card: #ffffff;
+  --ink: #1d2433;
+  --muted: #5d6576;
+  --line: #d9dce3;
+  --accent: #2346a8;
+  --accent-ink: #ffffff;
+  --mark: #fff1a8;
+  --keep: #1f7a4d;
+  --drop: #b3402f;
+  --font-display: "Nanum Myeongjo", "AppleMyungjo", "Batang", serif;
+  --font-body: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #12151c; --card: #1b2029; --ink: #e8eaf0; --muted: #9aa2b3; --line: #2d3442;
+    --accent: #7f9dff; --accent-ink: #0d1222; --mark: #4a4220; --keep: #5cc08c; --drop: #ef8a78;
+    color-scheme: dark;
+  }
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--paper); color: var(--ink);
+  font-family: var(--font-body); font-size: 16px; line-height: 1.6;
+}
+.wrap { max-width: 720px; margin: 0 auto; padding: 28px 16px 64px; display: flex; flex-direction: column; gap: 20px; }
+header { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 16px; }
+h1 { font-family: var(--font-display); font-size: 28px; margin: 0; letter-spacing: -0.01em; text-wrap: balance; }
+h2 { font-size: 16px; margin: 0; }
+.stats { color: var(--muted); font-size: 14px; font-variant-numeric: tabular-nums; }
+.stats b { color: var(--ink); font-weight: 600; }
+
+nav { display: flex; gap: 4px; border-bottom: 1px solid var(--line); overflow-x: auto; }
+nav button {
+  font: inherit; font-weight: 500; background: none; border: none; color: var(--muted);
+  padding: 10px 14px; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; white-space: nowrap;
+}
+nav button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); font-weight: 600; }
+
+button:focus-visible, textarea:focus-visible, input:focus-visible, label.btn:focus-within {
+  outline: 2px solid var(--accent); outline-offset: 2px;
+}
+.btn {
+  font: inherit; font-weight: 600; font-size: 15px; border-radius: 8px; padding: 10px 18px;
+  cursor: pointer; border: 1px solid var(--line); background: var(--card); color: var(--ink);
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+}
+.btn:hover { border-color: var(--muted); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.btn.keep { color: var(--keep); border-color: var(--keep); }
+.btn.drop { color: var(--drop); border-color: var(--drop); }
+.btn.small { padding: 5px 10px; font-size: 13px; font-weight: 500; }
+.btn:disabled { opacity: .5; cursor: default; }
+.btn input[type="file"] { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+
+.card {
+  background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+  padding: 24px; display: flex; flex-direction: column; gap: 18px;
+  box-shadow: 0 1px 0 var(--line);
+}
+.qmeta { display: flex; flex-wrap: wrap; gap: 4px 12px; justify-content: space-between; color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; }
+.qtext { font-family: var(--font-display); font-size: 21px; line-height: 1.65; white-space: pre-wrap; word-break: keep-all; overflow-wrap: anywhere; margin: 0; }
+.answer-box { border-top: 1px dashed var(--line); padding-top: 18px; display: flex; flex-direction: column; gap: 14px; }
+.label { font-size: 12px; font-weight: 600; letter-spacing: .06em; color: var(--muted); margin-bottom: 2px; }
+.ans { font-size: 18px; font-weight: 600; white-space: pre-wrap; overflow-wrap: anywhere; }
+.ans span { background: linear-gradient(transparent 55%, var(--mark) 55%); }
+.exp { white-space: pre-wrap; overflow-wrap: anywhere; }
+.photos { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+.photos img { max-width: 100%; border-radius: 8px; border: 1px solid var(--line); cursor: zoom-in; display: block; }
+.cover {
+  border: 1px dashed var(--line); border-radius: 8px; padding: 18px; text-align: center;
+  color: var(--muted); font-size: 14px;
+  background: repeating-linear-gradient(-45deg, transparent 0 8px, color-mix(in srgb, var(--line) 35%, transparent) 8px 9px);
+}
+.actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.actions .btn { flex: 1 1 180px; }
+.hint { font-size: 13px; color: var(--muted); }
+
+.empty { text-align: center; padding: 36px 20px; color: var(--muted); }
+.empty p { margin: 0 0 14px; }
+
+form { display: flex; flex-direction: column; gap: 14px; }
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field > label { font-size: 14px; font-weight: 600; }
+.field > label small { font-weight: 400; color: var(--muted); }
+textarea, input[type="search"] {
+  font: inherit; color: var(--ink); background: var(--paper); border: 1px solid var(--line);
+  border-radius: 8px; padding: 10px 12px; width: 100%;
+}
+textarea { resize: vertical; min-height: 64px; }
+.row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.seg button { font: inherit; font-size: 14px; background: var(--card); color: var(--muted); border: none; padding: 7px 12px; cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+pre.fmt { background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; font-size: 13px; margin: 0; overflow-x: auto; }
+
+.thumbs { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px; }
+.thumb { position: relative; aspect-ratio: 1; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--paper); }
+.thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.thumb button {
+  position: absolute; top: 4px; right: 4px; width: 26px; height: 26px; border-radius: 50%;
+  border: none; background: rgba(0,0,0,.65); color: #fff; font-size: 15px; line-height: 1; cursor: pointer;
+}
+.drop-zone { border: 1px dashed var(--line); border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+.drop-zone.over { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 7%, transparent); }
+
+.list { display: flex; flex-direction: column; gap: 10px; }
+.item { background: var(--card); border: 1px solid var(--line); border-left: 4px solid var(--keep); border-radius: 10px; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; }
+.item.hidden { border-left-color: var(--line); }
+.item .q { font-weight: 600; white-space: pre-wrap; overflow-wrap: anywhere; }
+.item .a { font-size: 14px; color: var(--muted); white-space: pre-wrap; overflow-wrap: anywhere; }
+.item .bar { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.pill { font-size: 12px; font-weight: 600; border-radius: 99px; padding: 2px 9px; }
+.pill.on { background: color-mix(in srgb, var(--keep) 15%, transparent); color: var(--keep); }
+.pill.off { background: color-mix(in srgb, var(--muted) 15%, transparent); color: var(--muted); }
+.spacer { flex: 1; }
+
+.toast {
+  position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%);
+  background: var(--ink); color: var(--paper); border-radius: 10px; padding: 10px 14px;
+  display: flex; gap: 12px; align-items: center; font-size: 14px; max-width: calc(100% - 32px);
+  box-shadow: 0 6px 24px rgba(0,0,0,.2); z-index: 20;
+}
+.toast button { font: inherit; font-weight: 600; background: none; border: none; color: var(--mark); cursor: pointer; padding: 0; }
+.viewer {
+  position: fixed; inset: 0; background: rgba(0,0,0,.85); display: flex; align-items: center; justify-content: center;
+  padding: 16px; z-index: 30; cursor: zoom-out;
+}
+.viewer img { max-width: 100%; max-height: 100%; border-radius: 6px; }
+.notice { font-size: 13px; color: var(--muted); border-left: 3px solid var(--line); padding-left: 10px; }
+[hidden] { display: none !important; }
+@media (prefers-reduced-motion: no-preference) {
+  .answer-box { animation: rise .18s ease-out; }
+  @keyframes rise { from { opacity: .4; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+}
+</style>
+<style>
+.admin-badge { font-size: 12px; font-weight: 600; color: var(--accent); border: 1px solid var(--accent); border-radius: 99px; padding: 2px 9px; }
+.field input[type="text"], .field input[type="password"] {
+  font: inherit; color: var(--ink); background: var(--paper); border: 1px solid var(--line);
+  border-radius: 8px; padding: 10px 12px; width: 100%;
+}
+.field input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 480px) { .grid2 { grid-template-columns: 1fr; } }
+ol.steps { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; font-size: 14px; }
+.ok { color: var(--keep); }
+.err { color: var(--drop); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>나만의 문제은행</h1>
+    <div class="row" style="gap:10px">
+      <span class="admin-badge" id="adminBadge" hidden>관리자</span>
+      <div class="stats" id="stats">불러오는 중…</div>
+    </div>
+  </header>
+
+  <nav role="tablist">
+    <button role="tab" aria-selected="true" data-view="quiz">문제 풀기</button>
+    <button role="tab" aria-selected="false" data-view="list">문제 목록</button>
+    <button role="tab" aria-selected="false" data-view="add" id="tabAdd" hidden>문제 입력</button>
+    <button role="tab" aria-selected="false" data-view="admin">관리</button>
+  </nav>
+
+  <!-- 문제 풀기 -->
+  <section id="view-quiz">
+    <div class="card" id="quizCard"></div>
+  </section>
+
+  <!-- 문제 입력 (관리자) -->
+  <section id="view-add" hidden>
+    <div class="card">
+      <div class="row">
+        <div class="seg" role="group" aria-label="입력 방식">
+          <button type="button" id="modeOne" aria-pressed="true">하나씩</button>
+          <button type="button" id="modeBulk" aria-pressed="false">여러 개 한 번에</button>
+        </div>
+      </div>
+
+      <form id="formOne">
+        <div class="field">
+          <label for="inQ">문제</label>
+          <textarea id="inQ" rows="4" placeholder="예) 대한민국 헌법상 국회의원의 임기는?"></textarea>
+        </div>
+        <div class="field">
+          <label for="inA">답</label>
+          <textarea id="inA" rows="2" placeholder="예) 4년"></textarea>
+        </div>
+        <div class="field">
+          <label for="inE">해설 <small>(선택)</small></label>
+          <textarea id="inE" rows="4" placeholder="예) 헌법 제42조: 국회의원의 임기는 4년으로 한다."></textarea>
+        </div>
+        <div class="field">
+          <label for="inImg">해설 사진 <small>(선택, 여러 장 가능)</small></label>
+          <div class="drop-zone" id="dropZone">
+            <div class="row">
+              <label class="btn small" for="inImg" style="position:relative">사진 첨부<input type="file" id="inImg" accept="image/*" multiple></label>
+              <span class="hint">파일을 끌어다 놓거나, 캡처한 이미지를 Ctrl+V로 붙여넣어도 돼요.</span>
+            </div>
+            <div class="thumbs" id="thumbs"></div>
+          </div>
+        </div>
+        <div class="row">
+          <button class="btn primary" type="submit" id="saveOne">저장</button>
+          <button class="btn" type="button" id="cancelEdit" hidden>수정 취소</button>
+          <span class="hint" id="oneMsg" role="status"></span>
+        </div>
+      </form>
+
+      <form id="formBulk" hidden>
+        <div class="field">
+          <label for="inBulk">문제 여러 개 붙여넣기</label>
+          <textarea id="inBulk" rows="12" placeholder="Q: 첫 번째 문제&#10;A: 답&#10;E: 해설&#10;---&#10;Q: 두 번째 문제&#10;A: 답"></textarea>
+        </div>
+        <pre class="fmt">Q: 문제 (여러 줄 가능)
+A: 답
+E: 해설 (선택, 여러 줄 가능)
+---          ← 문제 사이 구분선</pre>
+        <p class="hint" style="margin:0">사진은 저장한 뒤 ‘문제 목록’에서 수정을 눌러 붙일 수 있어요.</p>
+        <div class="row">
+          <button class="btn primary" type="submit" id="saveBulk">모두 저장</button>
+          <span class="hint" id="bulkMsg" role="status"></span>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- 문제 목록 -->
+  <section id="view-list" hidden>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div class="row">
+        <div class="seg" role="group" aria-label="목록 필터" id="filterSeg">
+          <button type="button" data-f="all" aria-pressed="true">전체</button>
+          <button type="button" data-f="on" aria-pressed="false">출제 중</button>
+          <button type="button" data-f="off" aria-pressed="false">안 보기</button>
+        </div>
+        <input type="search" id="search" placeholder="문제·답·해설 검색" style="flex:1 1 180px;width:auto">
+      </div>
+      <p class="hint" style="margin:0">‘안 보기’ 설정은 이 기기에만 적용돼요. 다른 사람의 화면에는 영향을 주지 않아요.</p>
+      <div class="list" id="list"></div>
+    </div>
+  </section>
+
+  <!-- 관리 -->
+  <section id="view-admin" hidden>
+    <div class="card" id="loginCard">
+      <h2>관리자 로그인</h2>
+      <p class="hint" style="margin:0">문제는 누구나 볼 수 있고, 추가·수정·삭제는 이 저장소에 쓰기 권한이 있는 GitHub 토큰으로 로그인한 사람만 할 수 있어요. 토큰은 이 기기의 브라우저에만 저장돼요.</p>
+      <form id="loginForm">
+        <div class="grid2">
+          <div class="field"><label for="inOwner">GitHub 아이디</label><input type="text" id="inOwner" autocomplete="username" spellcheck="false"></div>
+          <div class="field"><label for="inRepo">저장소 이름</label><input type="text" id="inRepo" spellcheck="false"></div>
+        </div>
+        <div class="field"><label for="inToken">GitHub 토큰</label><input type="password" id="inToken" autocomplete="off" spellcheck="false" placeholder="github_pat_…"></div>
+        <div class="row">
+          <button class="btn primary" type="submit" id="loginBtn">로그인</button>
+          <span class="hint" id="loginMsg" role="status"></span>
+        </div>
+      </form>
+      <details>
+        <summary class="hint" style="cursor:pointer">토큰 만드는 방법</summary>
+        <ol class="steps" style="margin-top:10px">
+          <li>GitHub → Settings → Developer settings → Personal access tokens → <b>Fine-grained tokens</b> → Generate new token</li>
+          <li>Repository access: <b>Only select repositories</b> → 이 사이트의 저장소 하나만 선택</li>
+          <li>Permissions → Repository permissions → <b>Contents: Read and write</b></li>
+          <li>생성된 <code>github_pat_…</code> 값을 위 칸에 붙여넣기</li>
+        </ol>
+      </details>
+    </div>
+    <div class="card" id="adminCard" hidden>
+      <h2>관리자로 로그인됨</h2>
+      <p class="hint" style="margin:0" id="adminInfo"></p>
+      <p class="hint" style="margin:0">저장하면 저장소에 바로 기록되고, 다른 사람 화면에는 사이트가 다시 배포된 뒤(보통 1분 안팎) 보여요.</p>
+      <div class="row">
+        <button class="btn" type="button" id="reloadBtn">저장소에서 다시 불러오기</button>
+        <button class="btn drop" type="button" id="logoutBtn">로그아웃 (이 기기에서 토큰 지우기)</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="toast" id="toast" hidden><span id="toastText"></span><button type="button" id="toastUndo">되돌리기</button></div>
+<div class="viewer" id="viewer" hidden><img id="viewerImg" alt="해설 사진 크게 보기"></div>
+
+<script>
+(function () {
+  "use strict";
+  // 저장소를 직접 지정하려면 여기에 적으세요. (GitHub Pages 주소면 자동으로 알아냅니다)
+  const CONFIG = { owner: "", repo: "", branch: "" };
+
+  const $ = (id) => document.getElementById(id);
+  const DATA_PATH = "data/questions.json";
+  const IMG_DIR = "data/img/";
+
+  // ================= 상태 =================
+  let questions = [];   // {id, q, a, e, imgs:[path], created}
+  let ready = false;
+  let loadError = "";
+
+  // 기기별 진행 상황 (안 보기 / 본 횟수)
+  const PKEY = "quizbank.progress.v1";
+  let progress = { off: {}, reviews: {} };
+  try { const p = JSON.parse(localStorage.getItem(PKEY) || "null"); if (p && p.off && p.reviews) progress = p; } catch (e) {}
+  function saveProgress() { try { localStorage.setItem(PKEY, JSON.stringify(progress)); } catch (e) {} }
+  const isOff = (id) => !!progress.off[id];
+  const reviewsOf = (id) => progress.reviews[id] || 0;
+
+  // ================= 관리자 / GitHub =================
+  const AKEY = "quizbank.admin.v1";
+  let admin = null;   // {owner, repo, branch, token}
+  try { admin = JSON.parse(localStorage.getItem(AKEY) || "null"); } catch (e) {}
+
+  function guessRepo() {
+    if (CONFIG.owner && CONFIG.repo) return { owner: CONFIG.owner, repo: CONFIG.repo };
+    const h = location.hostname;
+    if (h.endsWith(".github.io")) {
+      const owner = h.split(".")[0];
+      const seg = location.pathname.split("/").filter(Boolean)[0];
+      return { owner, repo: seg && !seg.includes(".") ? seg : h };
+    }
+    return { owner: "", repo: "" };
+  }
+  const repoInfo = () => admin || Object.assign({ branch: CONFIG.branch || "main" }, guessRepo());
+
+  function b64encodeBytes(bytes) {
+    let s = ""; const CH = 0x8000;
+    for (let i = 0; i < bytes.length; i += CH) s += String.fromCharCode.apply(null, bytes.subarray(i, i + CH));
+    return btoa(s);
+  }
+  const b64encodeText = (t) => b64encodeBytes(new TextEncoder().encode(t));
+
+  async function gh(path, opts) {
+    opts = opts || {};
+    const r = await fetch("https://api.github.com/repos/" + admin.owner + "/" + admin.repo + path, {
+      method: opts.method || "GET",
+      headers: Object.assign({
+        "Authorization": "Bearer " + admin.token,
+        "Accept": "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28"
+      }, opts.headers || {}),
+      body: opts.body ? JSON.stringify(opts.body) : undefined,
+      cache: "no-store"
+    });
+    return r;
+  }
+  function ghError(r, what) {
+    const e = new Error(what + " (" + r.status + ")"); e.status = r.status; return e;
+  }
+  const encPath = (p) => p.split("/").map(encodeURIComponent).join("/");
+
+  async function ghGetJSONFile(path) {
+    const meta = await gh("/contents/" + encPath(path) + "?ref=" + encodeURIComponent(admin.branch));
+    if (meta.status === 404) return { sha: null, data: null };
+    if (!meta.ok) throw ghError(meta, "파일 정보를 읽지 못했어요");
+    const m = await meta.json();
+    const raw = await gh("/contents/" + encPath(path) + "?ref=" + encodeURIComponent(admin.branch), { headers: { "Accept": "application/vnd.github.raw+json" } });
+    if (!raw.ok) throw ghError(raw, "파일을 읽지 못했어요");
+    const text = await raw.text();
+    return { sha: m.sha, data: text.trim() ? JSON.parse(text) : null };
+  }
+  async function ghPut(path, b64, message, sha) {
+    const body = { message, content: b64, branch: admin.branch };
+    if (sha) body.sha = sha;
+    const r = await gh("/contents/" + encPath(path), { method: "PUT", body });
+    if (!r.ok) throw ghError(r, "저장하지 못했어요");
+    return (await r.json()).content.sha;
+  }
+  async function ghDelete(path, message) {
+    const meta = await gh("/contents/" + encPath(path) + "?ref=" + encodeURIComponent(admin.branch));
+    if (!meta.ok) return;
+    const m = await meta.json();
+    await gh("/contents/" + encPath(path), { method: "DELETE", body: { message, sha: m.sha, branch: admin.branch } });
+  }
+
+  // 질문 목록을 최신 상태로 읽고 → 바꾸고 → 저장 (충돌 시 다시 시도)
+  async function mutateQuestions(fn, message) {
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const cur = await ghGetJSONFile(DATA_PATH);
+      const list = (cur.data && Array.isArray(cur.data.questions)) ? cur.data.questions : [];
+      const next = fn(list.slice());
+      const json = JSON.stringify({ version: 1, updated: new Date().toISOString(), questions: next }, null, 2) + "\n";
+      try {
+        await ghPut(DATA_PATH, b64encodeText(json), message, cur.sha);
+        questions = next; render();
+        return next;
+      } catch (e) {
+        if (e.status === 409 || e.status === 422) continue;
+        throw e;
+      }
+    }
+    throw new Error("다른 곳에서 동시에 저장 중이에요. 잠시 후 다시 시도해 주세요.");
+  }
+
+  function friendly(e) {
+    if (!e) return "저장하지 못했어요.";
+    if (e.status === 401) return "토큰이 맞지 않거나 만료됐어요. ‘관리’ 탭에서 다시 로그인해 주세요.";
+    if (e.status === 403) return "이 토큰에는 저장소에 쓸 권한이 없어요. Contents: Read and write 권한을 확인해 주세요.";
+    if (e.status === 404) return "저장소를 찾을 수 없어요. 아이디와 저장소 이름을 확인해 주세요.";
+    if (e instanceof TypeError) return "인터넷 연결을 확인해 주세요.";
+    return e.message || "저장하지 못했어요.";
+  }
+
+  // ================= 불러오기 =================
+  async function loadQuestions() {
+    loadError = "";
+    try {
+      if (admin) {
+        const cur = await ghGetJSONFile(DATA_PATH);
+        questions = (cur.data && Array.isArray(cur.data.questions)) ? cur.data.questions : [];
+      } else {
+        const r = await fetch(DATA_PATH + "?t=" + Date.now(), { cache: "no-store" });
+        if (r.status === 404) questions = [];
+        else if (!r.ok) throw new Error("load");
+        else { const d = await r.json(); questions = Array.isArray(d.questions) ? d.questions : []; }
+      }
+    } catch (e) {
+      loadError = admin ? friendly(e) : "문제를 불러오지 못했어요. 새로고침해 보세요.";
+      if (!questions.length) questions = [];
+    }
+    questions.forEach(x => { if (!Array.isArray(x.imgs)) x.imgs = []; });
+    ready = true;
+    render();
+  }
+
+  // ================= 사진 =================
+  const localImg = {};   // path -> objectURL (방금 올린 사진: 사이트 배포 전에도 바로 보이게)
+  function imgSrc(path) { return localImg[path] || path; }
+  function attachImg(img, path) {
+    img.src = imgSrc(path);
+    img.addEventListener("error", function onErr() {
+      img.removeEventListener("error", onErr);
+      const r = repoInfo();
+      if (r.owner && r.repo) img.src = "https://raw.githubusercontent.com/" + r.owner + "/" + r.repo + "/" + (r.branch || "main") + "/" + path;
+    });
+  }
+
+  async function shrink(file) {
+    if (!file.type.startsWith("image/")) return null;
+    if (file.type === "image/gif" || file.type === "image/svg+xml") return file;
+    try {
+      const bmp = await createImageBitmap(file);
+      const MAX = 1600;
+      const scale = Math.min(1, MAX / Math.max(bmp.width, bmp.height));
+      if (scale === 1 && file.size < 600 * 1024) { bmp.close && bmp.close(); return file; }
+      const c = document.createElement("canvas");
+      c.width = Math.round(bmp.width * scale); c.height = Math.round(bmp.height * scale);
+      const g = c.getContext("2d");
+      g.fillStyle = "#fff"; g.fillRect(0, 0, c.width, c.height);
+      g.drawImage(bmp, 0, 0, c.width, c.height);
+      bmp.close && bmp.close();
+      const out = await new Promise(r => c.toBlob(r, "image/jpeg", 0.85));
+      return out && out.size < file.size ? out : file;
+    } catch (e) { return file; }
+  }
+  const extOf = (b) => ({ "image/png": "png", "image/gif": "gif", "image/webp": "webp", "image/svg+xml": "svg" })[b.type] || "jpg";
+
+  function openViewer(src) { $("viewerImg").src = src; $("viewer").hidden = false; }
+  $("viewer").addEventListener("click", () => { $("viewer").hidden = true; });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") $("viewer").hidden = true; });
+
+  // ================= 탭 =================
+  let view = "quiz";
+  document.querySelectorAll("nav button").forEach(b => b.addEventListener("click", () => setView(b.dataset.view)));
+  function setView(v) {
+    if (v === "add" && !admin) v = "admin";
+    view = v;
+    document.querySelectorAll("nav button").forEach(b => b.setAttribute("aria-selected", String(b.dataset.view === v)));
+    ["quiz", "add", "list", "admin"].forEach(n => $("view-" + n).hidden = n !== v);
+    render();
+  }
+
+  function el(tag, attrs, ...kids) {
+    const n = document.createElement(tag);
+    for (const k in (attrs || {})) {
+      if (k === "class") n.className = attrs[k];
+      else if (k === "text") n.textContent = attrs[k];
+      else if (k.startsWith("on")) n.addEventListener(k.slice(2), attrs[k]);
+      else n.setAttribute(k, attrs[k]);
+    }
+    kids.forEach(c => c && n.appendChild(c));
+    return n;
+  }
+
+  // ================= 문제 풀기 =================
+  let current = null, revealed = false, lastId = null, sessionCount = 0;
+  const active = () => questions.filter(x => !isOff(x.id));
+
+  function pickNext() {
+    const pool = active();
+    if (!pool.length) { current = null; return; }
+    const cands = pool.length > 1 ? pool.filter(x => x.id !== lastId) : pool;
+    current = cands[Math.floor(Math.random() * cands.length)].id;
+    revealed = false;
+  }
+
+  function renderQuiz() {
+    const card = $("quizCard");
+    card.replaceChildren();
+    if (!ready) { card.appendChild(el("div", { class: "empty", text: "문제를 불러오는 중…" })); return; }
+    if (current && !questions.find(x => x.id === current && !isOff(x.id))) current = null;
+    if (!current) pickNext();
+    const it = questions.find(x => x.id === current);
+    if (!it) {
+      const msg = loadError || (questions.length ? "출제할 문제가 없어요. 모두 ‘이후로 안 보기’로 넘겼습니다." : "아직 등록된 문제가 없어요.");
+      const box = el("div", { class: "empty" }, el("p", { text: msg }));
+      if (questions.length) box.appendChild(el("button", { class: "btn", text: "안 보기 문제 목록 열기", onclick: () => { setFilter("off"); setView("list"); } }));
+      else if (admin) box.appendChild(el("button", { class: "btn primary", text: "첫 문제 입력하기", onclick: () => setView("add") }));
+      card.appendChild(box);
+      return;
+    }
+    const rv = reviewsOf(it.id);
+    card.appendChild(el("div", { class: "qmeta" },
+      el("span", { text: "이번에 푼 문제 " + sessionCount + "개" }),
+      el("span", { text: "출제 중 " + active().length + "문제" + (rv ? " · 이 문제 " + rv + "번 봄" : "") })));
+    card.appendChild(el("p", { class: "qtext", text: it.q }));
+
+    if (!revealed) {
+      card.appendChild(el("div", { class: "cover", text: "답과 해설이 가려져 있어요. 먼저 머릿속으로 답을 떠올려 보세요." }));
+      card.appendChild(el("div", { class: "actions" },
+        el("button", { class: "btn primary", text: "답·해설 보기", onclick: () => { revealed = true; renderQuiz(); const k = $("keepBtn"); if (k) k.focus(); } })));
+      card.appendChild(el("div", { class: "hint", text: "단축키: Space 또는 Enter로 답 보기" }));
+    } else {
+      const box = el("div", { class: "answer-box" });
+      box.appendChild(el("div", null, el("div", { class: "label", text: "답" }), el("div", { class: "ans" }, el("span", { text: it.a }))));
+      const hasText = it.e && it.e.trim(), hasImg = it.imgs.length;
+      if (hasText || hasImg) {
+        const ex = el("div", null, el("div", { class: "label", text: "해설" }));
+        if (hasText) ex.appendChild(el("div", { class: "exp", text: it.e }));
+        if (hasImg) {
+          const ph = el("div", { class: "photos" });
+          it.imgs.forEach((p, i) => {
+            const img = el("img", { alt: "해설 사진 " + (i + 1) });
+            attachImg(img, p);
+            img.addEventListener("click", () => openViewer(img.src));
+            ph.appendChild(img);
+          });
+          ex.appendChild(ph);
+        }
+        box.appendChild(ex);
+      }
+      card.appendChild(box);
+      card.appendChild(el("div", { class: "actions" },
+        el("button", { class: "btn keep", id: "keepBtn", text: "다음에 또 보기", onclick: () => next(it, false) }),
+        el("button", { class: "btn drop", text: "이후로 안 보기", onclick: () => next(it, true) })));
+      card.appendChild(el("div", { class: "hint", text: "단축키: 1 다음에 또 보기 · 2 이후로 안 보기 · 사진은 누르면 크게 보여요" }));
+    }
+  }
+
+  function next(it, drop) {
+    lastId = it.id; sessionCount++;
+    progress.reviews[it.id] = reviewsOf(it.id) + 1;
+    if (drop) progress.off[it.id] = true;
+    saveProgress();
+    current = null; revealed = false;
+    render();
+    if (drop) showToast("이 문제는 이 기기에서 더 이상 출제되지 않아요.", () => { delete progress.off[it.id]; saveProgress(); render(); });
+  }
+
+  document.addEventListener("keydown", (e) => {
+    if (view !== "quiz" || !$("viewer").hidden) return;
+    const tag = (e.target.tagName || "").toLowerCase();
+    if (tag === "textarea" || tag === "input" || tag === "summary") return;
+    const it = questions.find(x => x.id === current);
+    if (!it) return;
+    if (!revealed && (e.key === " " || e.key === "Enter") && tag !== "button") { e.preventDefault(); revealed = true; renderQuiz(); }
+    else if (revealed && e.key === "1") next(it, false);
+    else if (revealed && e.key === "2") next(it, true);
+  });
+
+  // ================= 입력 (관리자) =================
+  let editingId = null;
+  let draft = [];   // [{path} | {blob, url}]
+  let busy = false;
+
+  function setMode(bulk) {
+    $("modeOne").setAttribute("aria-pressed", String(!bulk));
+    $("modeBulk").setAttribute("aria-pressed", String(bulk));
+    $("formOne").hidden = bulk; $("formBulk").hidden = !bulk;
+  }
+  $("modeOne").addEventListener("click", () => setMode(false));
+  $("modeBulk").addEventListener("click", () => setMode(true));
+
+  function renderThumbs() {
+    const box = $("thumbs"); box.replaceChildren();
+    draft.forEach((d, i) => {
+      const img = el("img", { alt: "첨부 사진 " + (i + 1) });
+      if (d.url) img.src = d.url; else attachImg(img, d.path);
+      img.addEventListener("click", () => openViewer(img.src));
+      box.appendChild(el("div", { class: "thumb" }, img,
+        el("button", { type: "button", "aria-label": "사진 " + (i + 1) + " 빼기", text: "×", onclick: () => { draft.splice(i, 1); renderThumbs(); } })));
+    });
+  }
+  async function addFiles(files) {
+    const list = Array.from(files || []).filter(f => f.type && f.type.startsWith("image/"));
+    if (!list.length) return;
+    $("oneMsg").textContent = "사진 준비 중…";
+    for (const f of list) { const b = await shrink(f); if (b) draft.push({ blob: b, url: URL.createObjectURL(b) }); }
+    $("oneMsg").textContent = "";
+    renderThumbs();
+  }
+  $("inImg").addEventListener("change", (e) => { addFiles(e.target.files); e.target.value = ""; });
+  const dz = $("dropZone");
+  dz.addEventListener("dragover", (e) => { e.preventDefault(); dz.classList.add("over"); });
+  dz.addEventListener("dragleave", () => dz.classList.remove("over"));
+  dz.addEventListener("drop", (e) => { e.preventDefault(); dz.classList.remove("over"); addFiles(e.dataTransfer.files); });
+  document.addEventListener("paste", (e) => {
+    if (view !== "add" || $("formOne").hidden) return;
+    const files = Array.from(e.clipboardData ? e.clipboardData.files : []).filter(f => f.type.startsWith("image/"));
+    if (files.length) { e.preventDefault(); addFiles(files); }
+  });
+
+  const newId = () => "q" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+
+  async function uploadDraftImages(qid, msgEl) {
+    const paths = [];
+    let n = 0; const total = draft.filter(d => d.blob).length;
+    for (const d of draft) {
+      if (d.path) { paths.push(d.path); continue; }
+      n++; msgEl.textContent = "사진 올리는 중… (" + n + "/" + total + ")";
+      const path = IMG_DIR + qid + "-" + Math.random().toString(36).slice(2, 8) + "." + extOf(d.blob);
+      const bytes = new Uint8Array(await d.blob.arrayBuffer());
+      await ghPut(path, b64encodeBytes(bytes), "사진 추가: " + path);
+      localImg[path] = d.url;
+      d.path = path; delete d.blob;
+      paths.push(path);
+    }
+    return paths;
+  }
+
+  $("formOne").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (busy) return;
+    const q = $("inQ").value.trim(), a = $("inA").value.trim(), ex = $("inE").value.trim();
+    if (!q || !a) { $("oneMsg").textContent = "문제와 답을 모두 입력해 주세요."; return; }
+    busy = true; $("saveOne").disabled = true;
+    const msg = $("oneMsg");
+    try {
+      const id = editingId || newId();
+      const before = editingId ? (questions.find(x => x.id === editingId) || { imgs: [] }).imgs.slice() : [];
+      const imgs = await uploadDraftImages(id, msg);
+      msg.textContent = "저장 중…";
+      if (editingId) {
+        await mutateQuestions(list => {
+          const i = list.findIndex(x => x.id === id);
+          const rec = Object.assign({}, i >= 0 ? list[i] : { id, created: Date.now() }, { q, a, e: ex, imgs });
+          if (i >= 0) list[i] = rec; else list.push(rec);
+          return list;
+        }, "문제 수정: " + q.slice(0, 40));
+        const removed = before.filter(p => !imgs.includes(p));
+        for (const p of removed) { try { await ghDelete(p, "사진 삭제: " + p); } catch (err) {} }
+        endEdit(); setView("list"); showToast("수정했어요.", null);
+      } else {
+        await mutateQuestions(list => { list.push({ id, q, a, e: ex, imgs, created: Date.now() }); return list; }, "문제 추가: " + q.slice(0, 40));
+        clearForm(); msg.textContent = "저장했어요. 다음 문제를 입력하세요."; $("inQ").focus();
+      }
+    } catch (err) { msg.textContent = friendly(err); }
+    busy = false; $("saveOne").disabled = false;
+  });
+  $("cancelEdit").addEventListener("click", () => { endEdit(); setView("list"); });
+
+  function clearForm() { $("inQ").value = ""; $("inA").value = ""; $("inE").value = ""; draft = []; renderThumbs(); }
+  function startEdit(it) {
+    if (!admin) return;
+    editingId = it.id;
+    $("inQ").value = it.q; $("inA").value = it.a; $("inE").value = it.e || "";
+    draft = it.imgs.map(p => ({ path: p })); renderThumbs();
+    $("saveOne").textContent = "수정 저장"; $("cancelEdit").hidden = false; $("oneMsg").textContent = "";
+    setMode(false); setView("add"); $("inQ").focus();
+  }
+  function endEdit() {
+    editingId = null; clearForm();
+    $("saveOne").textContent = "저장"; $("cancelEdit").hidden = true; $("oneMsg").textContent = "";
+  }
+
+  function parseBulk(text) {
+    const out = [];
+    text.split(/^\s*-{3,}\s*$/m).forEach(block => {
+      let cur = null; const f = { q: [], a: [], e: [] };
+      block.split("\n").forEach(line => {
+        const m = line.match(/^\s*(Q|A|E|문제|답|해설)\s*[:：]\s?(.*)$/i);
+        if (m) {
+          const k = m[1].toUpperCase();
+          cur = (k === "Q" || k === "문제") ? "q" : (k === "A" || k === "답") ? "a" : "e";
+          f[cur].push(m[2]);
+        } else if (cur) f[cur].push(line);
+      });
+      const q = f.q.join("\n").trim(), a = f.a.join("\n").trim(), e = f.e.join("\n").trim();
+      if (q || a) out.push({ q, a, e });
+    });
+    return out;
+  }
+  $("formBulk").addEventListener("submit", async (ev) => {
+    ev.preventDefault();
+    if (busy) return;
+    const list = parseBulk($("inBulk").value);
+    const good = list.filter(x => x.q && x.a);
+    const bad = list.length - good.length;
+    if (!good.length) { $("bulkMsg").textContent = "읽을 수 있는 문제가 없어요. Q:와 A: 줄이 있는지 확인해 주세요."; return; }
+    busy = true; $("saveBulk").disabled = true; $("bulkMsg").textContent = "저장 중…";
+    try {
+      const now = Date.now();
+      const recs = good.map((x, i) => ({ id: newId() + i, q: x.q, a: x.a, e: x.e, imgs: [], created: now + i }));
+      await mutateQuestions(l => l.concat(recs), "문제 " + recs.length + "개 추가");
+      $("inBulk").value = "";
+      $("bulkMsg").textContent = recs.length + "개 저장했어요." + (bad ? " 문제나 답이 빠진 " + bad + "개는 건너뛰었어요." : "");
+    } catch (err) { $("bulkMsg").textContent = friendly(err); }
+    busy = false; $("saveBulk").disabled = false;
+  });
+
+  // ================= 목록 =================
+  let filter = "all", confirmDel = null;
+  function setFilter(f) {
+    filter = f;
+    document.querySelectorAll("#filterSeg button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.f === f)));
+    renderList();
+  }
+  document.querySelectorAll("#filterSeg button").forEach(b => b.addEventListener("click", () => setFilter(b.dataset.f)));
+  $("search").addEventListener("input", () => renderList());
+
+  async function removeQuestion(it) {
+    try {
+      await mutateQuestions(list => list.filter(x => x.id !== it.id), "문제 삭제: " + it.q.slice(0, 40));
+      for (const p of it.imgs) { try { await ghDelete(p, "사진 삭제: " + p); } catch (e) {} }
+      showToast("삭제했어요.", null);
+    } catch (e) { showToast(friendly(e), null); }
+  }
+
+  function renderList() {
+    const box = $("list"); box.replaceChildren();
+    if (!ready) { box.appendChild(el("div", { class: "empty", text: "불러오는 중…" })); return; }
+    const term = $("search").value.trim().toLowerCase();
+    const rows = questions
+      .filter(x => filter === "all" || (filter === "on" ? !isOff(x.id) : isOff(x.id)))
+      .filter(x => !term || (x.q + "\n" + x.a + "\n" + (x.e || "")).toLowerCase().includes(term))
+      .sort((a, b) => (b.created || 0) - (a.created || 0));
+    if (!rows.length) {
+      box.appendChild(el("div", { class: "empty", text: loadError || (questions.length ? "조건에 맞는 문제가 없어요." : "아직 등록된 문제가 없어요.") }));
+      return;
+    }
+    rows.forEach(it => {
+      const off = isOff(it.id), n = it.imgs.length, rv = reviewsOf(it.id);
+      const bar = el("div", { class: "bar" },
+        el("span", { class: "pill " + (off ? "off" : "on"), text: off ? "안 보기" : "출제 중" }),
+        n ? el("span", { class: "hint", text: "사진 " + n + "장" }) : null,
+        rv ? el("span", { class: "hint", text: "본 횟수 " + rv }) : null,
+        el("span", { class: "spacer" }),
+        el("button", { class: "btn small", text: off ? "다시 출제" : "출제 제외", onclick: () => { if (off) delete progress.off[it.id]; else progress.off[it.id] = true; saveProgress(); render(); } }),
+        admin ? el("button", { class: "btn small", text: "수정", onclick: () => startEdit(it) }) : null,
+        !admin ? null : confirmDel === it.id
+          ? el("button", { class: "btn small drop", text: "정말 삭제", onclick: () => { confirmDel = null; removeQuestion(it); } })
+          : el("button", { class: "btn small", text: "삭제", onclick: () => { confirmDel = it.id; renderList(); } }));
+      box.appendChild(el("div", { class: "item" + (off ? " hidden" : "") },
+        el("div", { class: "q", text: it.q }),
+        el("div", { class: "a", text: "답: " + it.a }),
+        bar));
+    });
+  }
+
+  // ================= 관리 (로그인) =================
+  function renderAdmin() {
+    $("adminBadge").hidden = !admin;
+    $("tabAdd").hidden = !admin;
+    $("loginCard").hidden = !!admin;
+    $("adminCard").hidden = !admin;
+    if (admin) $("adminInfo").textContent = "저장소: " + admin.owner + "/" + admin.repo + " (" + admin.branch + " 브랜치)";
+    else {
+      const g = guessRepo();
+      if (!$("inOwner").value) $("inOwner").value = g.owner;
+      if (!$("inRepo").value) $("inRepo").value = g.repo;
+    }
+  }
+  $("loginForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const owner = $("inOwner").value.trim(), repo = $("inRepo").value.trim(), token = $("inToken").value.trim();
+    if (!owner || !repo || !token) { $("loginMsg").textContent = "세 칸을 모두 채워 주세요."; return; }
+    $("loginBtn").disabled = true; $("loginMsg").textContent = "확인 중…";
+    try {
+      const r = await fetch("https://api.github.com/repos/" + owner + "/" + repo, {
+        headers: { "Authorization": "Bearer " + token, "Accept": "application/vnd.github+json" }, cache: "no-store"
+      });
+      if (!r.ok) throw ghError(r, "로그인 실패");
+      const info = await r.json();
+      if (info.permissions && info.permissions.push === false) { const er = new Error(); er.status = 403; throw er; }
+      admin = { owner, repo, branch: CONFIG.branch || info.default_branch || "main", token };
+      try { localStorage.setItem(AKEY, JSON.stringify(admin)); } catch (er) {}
+      $("inToken").value = ""; $("loginMsg").textContent = "";
+      ready = false; render();
+      await loadQuestions();
+      setView("add");
+    } catch (err) { $("loginMsg").textContent = friendly(err); }
+    $("loginBtn").disabled = false;
+  });
+  $("logoutBtn").addEventListener("click", () => {
+    admin = null; try { localStorage.removeItem(AKEY); } catch (e) {}
+    endEdit(); ready = false; render(); loadQuestions(); setView("quiz");
+  });
+  $("reloadBtn").addEventListener("click", async () => { ready = false; render(); await loadQuestions(); showToast("다시 불러왔어요.", null); });
+
+  // ================= 공통 =================
+  let toastTimer = null;
+  function showToast(text, undo) {
+    $("toastText").textContent = text;
+    $("toastUndo").hidden = !undo;
+    $("toastUndo").onclick = () => { $("toast").hidden = true; if (undo) undo(); };
+    $("toast").hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { $("toast").hidden = true; }, 5000);
+  }
+
+  function render() {
+    if (ready) {
+      const on = active().length, off = questions.length - on;
+      $("stats").replaceChildren("전체 ", el("b", { text: String(questions.length) }), " · 출제 중 ", el("b", { text: String(on) }), " · 안 보기 ", el("b", { text: String(off) }));
+    } else $("stats").textContent = "불러오는 중…";
+    renderAdmin();
+    if (view === "quiz") renderQuiz();
+    if (view === "list") renderList();
+  }
+
+  render();
+  loadQuestions();
+})();
+</script>
+</body>
+</html>
