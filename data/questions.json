@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-11-09T09:17:32.673Z",
+  "updated": "2026-11-09T09:21:09.272Z",
   "questions": [
     {
       "id": "qmw8pjktdlpofr",
@@ -162,6 +162,25 @@
       "qimgs": [],
       "imgs": [],
       "created": 1794215852673
+    },
+    {
+      "id": "qmw91x59yfwktp",
+      "q": "다음 중 마모된 암나사를 재생하거나 강도가 불충분한 재료의 나사 체결력을 강화시키는 데 사용되는 기계요소는?",
+      "a": "",
+      "e": "② 헬리컬 와셔 = 스프링 와셔",
+      "type": "theory",
+      "choices": [
+        "로크너트",
+        "헬리컬 와셔",
+        "헬리서트",
+        "캡너트"
+      ],
+      "correct": 2,
+      "qimgs": [],
+      "imgs": [
+        "data/img/qmw91x59yfwktp-u740xl.png"
+      ],
+      "created": 1794216069272
     }
   ]
 }
