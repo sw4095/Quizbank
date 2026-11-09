@@ -161,6 +161,13 @@ pre.fmt { background: var(--paper); border: 1px solid var(--line); border-radius
 @media (max-width: 480px) { .grid2 { grid-template-columns: 1fr; } }
 ol.steps { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; font-size: 14px; }
 .ok { color: var(--keep); }
+strong { font-weight: 800; }
+.qtext strong { font-weight: 800; }
+.field-head label { font-size: 14px; font-weight: 600; }
+.field-head label small { font-weight: 400; color: var(--muted); }
+.field-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.bold-btn { font: inherit; font-size: 13px; font-weight: 800; border: 1px solid var(--line); background: var(--card); color: var(--ink); border-radius: 6px; padding: 2px 9px; cursor: pointer; }
+.bold-btn:hover { border-color: var(--muted); }
 .choices { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
 .choice {
   width: 100%; text-align: left; font: inherit; color: var(--ink); background: var(--card);
@@ -227,7 +234,7 @@ ol.steps { margin: 0; padding-left: 20px; display: flex; flex-direction: column;
 
       <form id="formOne">
         <div class="field">
-          <label for="inQ">문제</label>
+          <div class="field-head"><label for="inQ">문제</label><button type="button" class="bold-btn" data-target="inQ" title="선택한 글자를 굵게 (Ctrl+B)">B 굵게</button></div>
           <textarea id="inQ" rows="4" placeholder="예) 대한민국 헌법상 국회의원의 임기는?"></textarea>
         </div>
         <div class="field">
@@ -246,11 +253,11 @@ ol.steps { margin: 0; padding-left: 20px; display: flex; flex-direction: column;
           <div class="row" id="chBtns"></div>
         </div>
         <div class="field">
-          <label for="inA">답 <small id="ansHint"></small></label>
+          <div class="field-head"><label for="inA">답 <small id="ansHint"></small></label><button type="button" class="bold-btn" data-target="inA" title="선택한 글자를 굵게 (Ctrl+B)">B 굵게</button></div>
           <textarea id="inA" rows="2" placeholder="예) 4년"></textarea>
         </div>
         <div class="field">
-          <label for="inE">해설 <small>(선택)</small></label>
+          <div class="field-head"><label for="inE">해설 <small>(선택)</small></label><button type="button" class="bold-btn" data-target="inE" title="선택한 글자를 굵게 (Ctrl+B)">B 굵게</button></div>
           <textarea id="inE" rows="4" placeholder="예) 헌법 제42조: 국회의원의 임기는 4년으로 한다."></textarea>
         </div>
         <div class="field">
@@ -279,6 +286,7 @@ ol.steps { margin: 0; padding-left: 20px; display: flex; flex-direction: column;
 ① 보기1        ← 객관식이면 보기를 ①~⑨ 또는 1) 2) 로
 ② 보기2
 A: 답          ← 객관식은 A: ② 또는 A: 2 처럼 번호만 써도 돼요
+               ← 굵게 하려면 **이렇게** 별 두 개로 감싸요
 E: 해설 (선택, 여러 줄 가능)
 ---          ← 문제 사이 구분선</pre>
         <p class="hint" style="margin:0">사진은 저장한 뒤 ‘문제 목록’에서 수정을 눌러 붙일 수 있어요.</p>
@@ -550,11 +558,28 @@ E: 해설 (선택, 여러 줄 가능)
     render();
   }
 
+  // **굵게** 표시 → <strong> (HTML은 그대로 글자로 보여서 안전)
+  function rich(text) {
+    const frag = document.createDocumentFragment();
+    const re = /\*\*([\s\S]+?)\*\*/g;
+    let last = 0, m;
+    text = String(text || "");
+    while ((m = re.exec(text))) {
+      if (m.index > last) frag.appendChild(document.createTextNode(text.slice(last, m.index)));
+      const b = document.createElement("strong"); b.textContent = m[1]; frag.appendChild(b);
+      last = re.lastIndex;
+    }
+    if (last < text.length) frag.appendChild(document.createTextNode(text.slice(last)));
+    return frag;
+  }
+  const plain = (t) => String(t || "").replace(/\*\*([\s\S]+?)\*\*/g, "$1");
+
   function el(tag, attrs, ...kids) {
     const n = document.createElement(tag);
     for (const k in (attrs || {})) {
       if (k === "class") n.className = attrs[k];
       else if (k === "text") n.textContent = attrs[k];
+      else if (k === "rich") n.appendChild(rich(attrs[k]));
       else if (k.startsWith("on")) n.addEventListener(k.slice(2), attrs[k]);
       else n.setAttribute(k, attrs[k]);
     }
@@ -593,7 +618,7 @@ E: 해설 (선택, 여러 줄 가능)
     card.appendChild(el("div", { class: "qmeta" },
       el("span", { text: "이번에 푼 문제 " + sessionCount + "개" }),
       el("span", { text: "출제 중 " + active().length + "문제" + (rv ? " · 이 문제 " + rv + "번 봄" : "") })));
-    if (it.q) card.appendChild(el("p", { class: "qtext", text: it.q }));
+    if (it.q) card.appendChild(el("p", { class: "qtext", rich: it.q }));
     if (it.qimgs.length) card.appendChild(photoBlock(it.qimgs, "문제 사진"));
     if (it.choices.length) card.appendChild(choiceList(it));
 
@@ -610,11 +635,11 @@ E: 해설 (선택, 여러 줄 가능)
           ? el("div", { class: "verdict good", text: "정답이에요!" })
           : el("div", { class: "verdict bad", text: "아쉬워요. " + circ(picked) + "번을 골랐어요." }));
       }
-      box.appendChild(el("div", null, el("div", { class: "label", text: "답" }), el("div", { class: "ans" }, el("span", { text: answerText(it) }))));
+      box.appendChild(el("div", null, el("div", { class: "label", text: "답" }), el("div", { class: "ans" }, el("span", { rich: answerText(it) }))));
       const hasText = it.e && it.e.trim(), hasImg = it.imgs.length;
       if (hasText || hasImg) {
         const ex = el("div", null, el("div", { class: "label", text: "해설" }));
-        if (hasText) ex.appendChild(el("div", { class: "exp", text: it.e }));
+        if (hasText) ex.appendChild(el("div", { class: "exp", rich: it.e }));
         if (hasImg) ex.appendChild(photoBlock(it.imgs, "해설 사진"));
         box.appendChild(ex);
       }
@@ -644,7 +669,7 @@ E: 해설 (선택, 여러 줄 가능)
       }
       const b = el("button", { type: "button", class: cls, onclick: () => reveal(i) },
         el("span", { class: "no", text: circ(i) }),
-        el("span", { class: "tx", text: c }),
+        el("span", { class: "tx", rich: c }),
         tag ? el("span", { class: "tag", text: tag }) : null);
       if (revealed) b.disabled = true;
       ul.appendChild(el("li", null, b));
@@ -752,6 +777,37 @@ E: 해설 (선택, 여러 줄 가능)
     }
     return { qimgs: drafts.Q.map(d => d.path), imgs: drafts.E.map(d => d.path) };
   }
+  // 굵게: 선택 영역을 ** ** 로 감싸기 / 이미 감싸져 있으면 풀기
+  function toggleBold(t) {
+    if (!t || typeof t.selectionStart !== "number") return;
+    const v = t.value, s0 = t.selectionStart, e0 = t.selectionEnd;
+    const sel = v.slice(s0, e0);
+    let nv, ns, ne;
+    if (v.slice(s0 - 2, s0) === "**" && v.slice(e0, e0 + 2) === "**") {
+      nv = v.slice(0, s0 - 2) + sel + v.slice(e0 + 2); ns = s0 - 2; ne = e0 - 2;
+    } else if (sel.length > 4 && sel.startsWith("**") && sel.endsWith("**")) {
+      nv = v.slice(0, s0) + sel.slice(2, -2) + v.slice(e0); ns = s0; ne = e0 - 4;
+    } else {
+      const lead = sel.match(/^\s*/)[0], trail = sel.match(/\s*$/)[0];
+      const core = sel.slice(lead.length, sel.length - trail.length);
+      nv = v.slice(0, s0) + lead + "**" + core + "**" + trail + v.slice(e0);
+      ns = s0 + lead.length + 2; ne = ns + core.length;
+    }
+    t.value = nv; t.focus(); t.setSelectionRange(ns, ne);
+    t.dispatchEvent(new Event("input", { bubbles: true }));
+  }
+  document.querySelectorAll(".bold-btn").forEach(b => {
+    b.addEventListener("mousedown", (e) => e.preventDefault());   // 입력칸 선택이 풀리지 않게
+    b.addEventListener("click", () => toggleBold($(b.dataset.target)));
+  });
+  document.addEventListener("keydown", (e) => {
+    if (!(e.ctrlKey || e.metaKey) || e.key.toLowerCase() !== "b") return;
+    const t = e.target;
+    if (!t || !t.closest || !t.closest("#formOne, #formBulk")) return;
+    if (t.tagName !== "TEXTAREA" && !(t.tagName === "INPUT" && t.type === "text")) return;
+    e.preventDefault(); toggleBold(t);
+  });
+
   // 객관식 보기 편집
   let chDraft = [];       // string[]
   let chCorrect = -1;
@@ -795,7 +851,7 @@ E: 해설 (선택, 여러 줄 가능)
     $("ansHint").textContent = chCorrect >= 0 ? "(정답 보기를 골랐으니 비워 둬도 돼요)" : chDraft.length ? "(정답 보기를 체크하거나 답을 적어 주세요)" : "";
   }
 
-  const label = (q) => (q || "(사진 문제)").replace(/\s+/g, " ").slice(0, 40);
+  const label = (q) => (plain(q) || "(사진 문제)").replace(/\s+/g, " ").slice(0, 40);
 
   $("formOne").addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -948,8 +1004,8 @@ E: 해설 (선택, 여러 줄 가능)
           ? el("button", { class: "btn small drop", text: "정말 삭제", onclick: () => { confirmDel = null; removeQuestion(it); } })
           : el("button", { class: "btn small", text: "삭제", onclick: () => { confirmDel = it.id; renderList(); } }));
       box.appendChild(el("div", { class: "item" + (off ? " hidden" : "") },
-        el("div", { class: "q", text: it.q || "(사진 문제)" }),
-        el("div", { class: "a", text: (it.choices.length ? "객관식 " + it.choices.length + "지선다 · " : "") + "답: " + answerText(it) }),
+        el("div", { class: "q", rich: it.q || "(사진 문제)" }),
+        el("div", { class: "a", rich: (it.choices.length ? "객관식 " + it.choices.length + "지선다 · " : "") + "답: " + answerText(it) }),
         bar));
     });
   }
