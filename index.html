@@ -161,6 +161,12 @@ pre.fmt { background: var(--paper); border: 1px solid var(--line); border-radius
 @media (max-width: 480px) { .grid2 { grid-template-columns: 1fr; } }
 ol.steps { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; font-size: 14px; }
 .ok { color: var(--keep); }
+.scan-box { border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; background: color-mix(in srgb, var(--accent) 5%, var(--card)); }
+.scan-box .row { gap: 8px 12px; }
+.scan-pick { display: flex; flex-direction: column; gap: 6px; }
+.scan-pick button { text-align: left; font: inherit; font-size: 14px; color: var(--ink); background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.scan-pick button:hover { border-color: var(--accent); }
+.scan-pick button[aria-current="true"] { border-color: var(--accent); font-weight: 600; }
 strong { font-weight: 800; }
 .qtext strong { font-weight: 800; }
 .field-head label { font-size: 14px; font-weight: 600; }
@@ -233,6 +239,13 @@ strong { font-weight: 800; }
       </div>
 
       <form id="formOne">
+        <div class="scan-box">
+          <div class="row">
+            <label class="btn small primary" for="scanFile" style="position:relative" id="scanLabel">사진으로 문제 채우기<input type="file" id="scanFile" accept="image/*"></label>
+            <span class="hint" id="scanMsg" role="status">문제집 사진을 올리면 문제와 보기를 자동으로 채워요. 답과 해설은 직접 입력하세요.</span>
+          </div>
+          <div class="scan-pick" id="scanPick" hidden></div>
+        </div>
         <div class="field">
           <div class="field-head"><label for="inQ">문제</label><button type="button" class="bold-btn" data-target="inQ" title="선택한 글자를 굵게 (Ctrl+B)">B 굵게</button></div>
           <textarea id="inQ" rows="4" placeholder="예) 대한민국 헌법상 국회의원의 임기는?"></textarea>
@@ -348,6 +361,28 @@ E: 해설 (선택, 여러 줄 가능)
         <button class="btn" type="button" id="reloadBtn">저장소에서 다시 불러오기</button>
         <button class="btn drop" type="button" id="logoutBtn">로그아웃 (이 기기에서 토큰 지우기)</button>
       </div>
+    </div>
+    <div class="card" id="geminiCard" hidden>
+      <h2>사진 읽기 (Google Gemini)</h2>
+      <p class="hint" style="margin:0">‘사진으로 문제 채우기’에 쓰는 무료 키예요. 이 기기의 브라우저에만 저장돼요.</p>
+      <p class="hint" style="margin:0" id="geminiState"></p>
+      <form id="geminiForm">
+        <div class="field"><label for="inGemini">Gemini API 키</label><input type="password" id="inGemini" autocomplete="off" spellcheck="false" placeholder="AIza…"></div>
+        <div class="row">
+          <button class="btn primary" type="submit">키 저장</button>
+          <button class="btn" type="button" id="geminiClear">키 지우기</button>
+          <span class="hint" id="geminiMsg" role="status"></span>
+        </div>
+      </form>
+      <details>
+        <summary class="hint" style="cursor:pointer">무료 키 받는 방법</summary>
+        <ol class="steps" style="margin-top:10px">
+          <li><a href="https://aistudio.google.com/apikey">aistudio.google.com/apikey</a> 에 구글 계정으로 로그인</li>
+          <li><b>Create API key</b> (API 키 만들기) 누르기 → 프로젝트는 아무거나 선택하거나 새로 만들기</li>
+          <li>결제 정보는 넣지 않아도 돼요. 무료 사용량 안에서만 쓰여요.</li>
+          <li>만들어진 <code>AIza…</code> 키를 복사해서 위 칸에 붙여넣고 ‘키 저장’</li>
+        </ol>
+      </details>
     </div>
   </section>
 </div>
@@ -808,6 +843,154 @@ E: 해설 (선택, 여러 줄 가능)
     e.preventDefault(); toggleBold(t);
   });
 
+  // ================= 사진으로 문제 읽기 (Gemini) =================
+  // 다른 AI로 바꾸려면 readProblemsFromImage() 하나만 바꾸면 돼요.
+  const GKEY = "quizbank.gemini.v1";
+  const GEMINI_MODELS = ["gemini-3-flash-preview", "gemini-2.5-flash"];
+  let geminiKey = "";
+  try { geminiKey = localStorage.getItem(GKEY) || ""; } catch (e) {}
+
+  const SCAN_PROMPT = [
+    "이 사진은 한국어 시험 문제집을 찍은 것입니다. 사진이 옆으로 돌아가 있거나 기울어져 있을 수 있습니다.",
+    "사진에 있는 객관식/주관식 문제를 모두 찾아서, 각 문제의 '문제 문장'과 '보기'를 원문 그대로 옮겨 적으세요.",
+    "규칙:",
+    "- 문제 번호(예: 46), '기출' 같은 표시는 question에 넣지 마세요.",
+    "- 출처 정보(예: 2016년 지방직 공무원 9급 기계일반 기출)가 있으면 source에 넣으세요. 없으면 빈 문자열.",
+    "- 보기의 번호 기호(①, ②, 1), 가.)는 빼고 내용만 choices 배열에 순서대로 넣으세요. 보기가 없으면 빈 배열.",
+    "- 문제 안에 <보기> 상자나 지문이 있으면 question에 줄바꿈으로 포함하세요.",
+    "- 문장 중 굵게, 밑줄, 강조된 말(예: 옳은, 옳지 않은, 아닌)은 **단어** 처럼 별표 두 개로 감싸세요.",
+    "- 정답이나 해설은 추측해서 쓰지 마세요.",
+    "- 사진 가장자리에서 잘려 일부만 보이는 문제는 complete를 false로 하세요.",
+    "- 글자를 고치거나 요약하지 말고 보이는 그대로 옮기세요."
+  ].join("\n");
+  const SCAN_SCHEMA = {
+    type: "OBJECT",
+    properties: {
+      problems: {
+        type: "ARRAY",
+        items: {
+          type: "OBJECT",
+          properties: {
+            question: { type: "STRING" },
+            choices: { type: "ARRAY", items: { type: "STRING" } },
+            source: { type: "STRING" },
+            complete: { type: "BOOLEAN" }
+          },
+          required: ["question", "choices"]
+        }
+      }
+    },
+    required: ["problems"]
+  };
+
+  async function toBase64Jpeg(file) {
+    let blob = file;
+    try {
+      const bmp = await createImageBitmap(file);
+      const MAX = 2000;
+      const scale = Math.min(1, MAX / Math.max(bmp.width, bmp.height));
+      const c = document.createElement("canvas");
+      c.width = Math.round(bmp.width * scale); c.height = Math.round(bmp.height * scale);
+      const g = c.getContext("2d"); g.fillStyle = "#fff"; g.fillRect(0, 0, c.width, c.height);
+      g.drawImage(bmp, 0, 0, c.width, c.height); bmp.close && bmp.close();
+      blob = await new Promise(r => c.toBlob(r, "image/jpeg", 0.9)) || file;
+    } catch (e) {}
+    const bytes = new Uint8Array(await blob.arrayBuffer());
+    return { data: b64encodeBytes(bytes), mime: blob.type || "image/jpeg" };
+  }
+
+  function scanError(status, body) {
+    const msg = (body && body.error && body.error.message) || "";
+    if (status === 400 && /api key|API_KEY/i.test(msg)) return "Gemini 키가 올바르지 않아요. ‘관리’ 탭에서 키를 다시 넣어 주세요.";
+    if (status === 403) return "이 Gemini 키로는 사용할 수 없어요. 키를 새로 만들어 보세요.";
+    if (status === 429) return "무료 사용량을 잠시 다 썼어요. 1분쯤 뒤에 다시 해 보거나, 내일 다시 시도해 주세요.";
+    if (status >= 500) return "Gemini 서버가 잠시 바빠요. 조금 뒤에 다시 시도해 주세요.";
+    return "사진을 읽지 못했어요." + (msg ? " (" + msg.slice(0, 120) + ")" : "");
+  }
+
+  async function readProblemsFromImage(file) {
+    const img = await toBase64Jpeg(file);
+    const body = {
+      contents: [{ role: "user", parts: [{ inline_data: { mime_type: img.mime, data: img.data } }, { text: SCAN_PROMPT }] }],
+      generationConfig: { responseMimeType: "application/json", responseSchema: SCAN_SCHEMA, temperature: 0 }
+    };
+    let lastErr = null;
+    for (const model of GEMINI_MODELS) {
+      let r;
+      try {
+        r = await fetch("https://generativelanguage.googleapis.com/v1beta/models/" + model + ":generateContent", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "x-goog-api-key": geminiKey },
+          body: JSON.stringify(body)
+        });
+      } catch (e) { throw new Error("인터넷 연결을 확인해 주세요."); }
+      let data = null; try { data = await r.json(); } catch (e) {}
+      if (r.ok) {
+        const text = (((data || {}).candidates || [])[0] || {}).content;
+        const raw = text && text.parts ? text.parts.map(p => p.text || "").join("") : "";
+        let parsed; try { parsed = JSON.parse(raw); } catch (e) { throw new Error("사진에서 문제를 찾지 못했어요. 더 밝고 가까이 찍어 보세요."); }
+        return (parsed.problems || []).filter(p => p && (p.question || "").trim());
+      }
+      // 모델이 없어졌거나 이름이 바뀐 경우 다음 모델로
+      if (r.status === 404 || (r.status === 400 && /model/i.test(((data || {}).error || {}).message || "") && !/api key/i.test(((data || {}).error || {}).message || ""))) { lastErr = scanError(r.status, data); continue; }
+      throw new Error(scanError(r.status, data));
+    }
+    throw new Error(lastErr || "사진을 읽지 못했어요.");
+  }
+
+  let scanned = [];
+  function fillFromProblem(i) {
+    const p = scanned[i]; if (!p) return;
+    let q = (p.question || "").trim();
+    const src = (p.source || "").trim();
+    if (src) q += " (" + src.replace(/^\(|\)$/g, "") + ")";
+    $("inQ").value = q;
+    chDraft = (p.choices || []).map(c => String(c).trim()).filter(Boolean);
+    chCorrect = -1;
+    renderChoices();
+    document.querySelectorAll("#scanPick button").forEach((b, j) => b.setAttribute("aria-current", String(j === i)));
+    $("oneMsg").textContent = "";
+    $("scanMsg").textContent = "채웠어요. 글자가 맞는지 확인하고, 정답 보기를 체크하거나 답을 적은 뒤 저장하세요." + (p.complete === false ? " (사진에서 잘린 문제라 빠진 내용이 있을 수 있어요)" : "");
+    $("inA").focus();
+  }
+
+  $("scanFile").addEventListener("change", async (e) => {
+    const f = e.target.files && e.target.files[0]; e.target.value = "";
+    if (!f) return;
+    if (!geminiKey) { $("scanMsg").textContent = "먼저 ‘관리’ 탭에서 Gemini 무료 키를 넣어 주세요."; return; }
+    const label = $("scanLabel"); label.style.opacity = ".6"; label.style.pointerEvents = "none";
+    $("scanMsg").textContent = "사진 읽는 중… (10~30초 걸려요)";
+    $("scanPick").hidden = true; $("scanPick").replaceChildren();
+    try {
+      scanned = await readProblemsFromImage(f);
+      if (!scanned.length) { $("scanMsg").textContent = "사진에서 문제를 찾지 못했어요. 문제가 잘 보이게 다시 찍어 보세요."; }
+      else if (scanned.length === 1) fillFromProblem(0);
+      else {
+        const box = $("scanPick");
+        scanned.forEach((p, i) => box.appendChild(el("button", { type: "button", text: (i + 1) + ". " + plain(p.question).replace(/\s+/g, " ") + (p.complete === false ? " (잘림)" : ""), onclick: () => fillFromProblem(i) })));
+        box.hidden = false;
+        $("scanMsg").textContent = "문제를 " + scanned.length + "개 찾았어요. 채울 문제를 고르세요. 하나 저장한 뒤 다른 것도 고를 수 있어요.";
+      }
+    } catch (err) { $("scanMsg").textContent = err.message || "사진을 읽지 못했어요."; }
+    label.style.opacity = ""; label.style.pointerEvents = "";
+  });
+
+  function renderGemini() {
+    $("geminiCard").hidden = !admin;
+    $("geminiState").textContent = geminiKey ? "키가 저장돼 있어요 (…" + geminiKey.slice(-4) + ")." : "아직 키가 없어요.";
+  }
+  $("geminiForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const k = $("inGemini").value.trim();
+    if (!k) { $("geminiMsg").textContent = "키를 붙여넣어 주세요."; return; }
+    geminiKey = k; try { localStorage.setItem(GKEY, k); } catch (er) {}
+    $("inGemini").value = ""; $("geminiMsg").textContent = "저장했어요."; renderGemini();
+  });
+  $("geminiClear").addEventListener("click", () => {
+    geminiKey = ""; try { localStorage.removeItem(GKEY); } catch (er) {}
+    $("geminiMsg").textContent = "지웠어요."; renderGemini();
+  });
+
   // 객관식 보기 편집
   let chDraft = [];       // string[]
   let chCorrect = -1;
@@ -836,7 +1019,7 @@ E: 해설 (선택, 여러 줄 가능)
       btns.appendChild(el("button", { type: "button", class: "btn small", text: "보기 5개 만들기", onclick: () => { chDraft = ["", "", "", "", ""]; renderChoices(0); } }));
     } else {
       if (chDraft.length < CIRCLED.length) btns.appendChild(el("button", { type: "button", class: "btn small", text: "+ 보기 추가", onclick: () => addChoice() }));
-      btns.appendChild(el("button", { type: "button", class: "btn small", text: "보기 모두 지우기", onclick: () => { chDraft = []; chCorrect = -1; renderChoices(); } }));
+      btns.appendChild(el("button", { type: "button", class: "btn small", text: "보기 모두 지우기", onclick: () => { chDraft = []; chCorrect = -1; renderChoices(); document.querySelectorAll("#scanPick button").forEach(b => b.removeAttribute("aria-current")); } }));
     }
     updateAnsHint();
     if (typeof focusIdx === "number" && $("ch" + focusIdx)) $("ch" + focusIdx).focus();
@@ -1016,6 +1199,7 @@ E: 해설 (선택, 여러 줄 가능)
     $("tabAdd").hidden = !admin;
     $("loginCard").hidden = !!admin;
     $("adminCard").hidden = !admin;
+    renderGemini();
     if (admin) $("adminInfo").textContent = "저장소: " + admin.owner + "/" + admin.repo + " (" + admin.branch + " 브랜치)";
     else {
       const g = guessRepo();
