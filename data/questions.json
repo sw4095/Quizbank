@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-11-09T04:00:07.439Z",
+  "updated": "2026-11-09T06:28:08.646Z",
   "questions": [
     {
       "id": "qmw8pjktdlpofr",
@@ -48,6 +48,17 @@
         "data/img/qmw8qdz6cnr9ba-zyrbqu.png"
       ],
       "created": 1794196698803
+    },
+    {
+      "id": "qmw8vqoxchpzhe",
+      "q": "강자성체, 상자성체, 반자성체의 종류를 말하시오.",
+      "a": "강자성체 : Ni, Co, Fe\n상자성체 : Al, Sn, Ir, Mo, Cr, Pt\n반자성치 : 유리, Bi, Ag, Cu, Au, Sb, Zn",
+      "e": "",
+      "choices": [],
+      "correct": -1,
+      "qimgs": [],
+      "imgs": [],
+      "created": 1794205688646
     }
   ]
 }
