@@ -17,7 +17,8 @@
       "correct": 4,
       "qimgs": [],
       "imgs": [],
-      "created": 1794195278954
+      "created": 1794195278954,
+      "type": "theory"
     },
     {
       "id": "qmw8pqb4nd8qz4",
@@ -28,7 +29,8 @@
       "correct": -1,
       "qimgs": [],
       "imgs": [],
-      "created": 1794195593014
+      "created": 1794195593014,
+      "type": "theory"
     },
     {
       "id": "qmw8qdz6cnr9ba",
@@ -47,7 +49,8 @@
       "imgs": [
         "data/img/qmw8qdz6cnr9ba-zyrbqu.png"
       ],
-      "created": 1794196698803
+      "created": 1794196698803,
+      "type": "theory"
     },
     {
       "id": "qmw8vqoxchpzhe",
@@ -58,7 +61,8 @@
       "correct": -1,
       "qimgs": [],
       "imgs": [],
-      "created": 1794205688646
+      "created": 1794205688646,
+      "type": "theory"
     },
     {
       "id": "qmw8vull2cnyc2",
@@ -74,7 +78,8 @@
       "correct": 0,
       "qimgs": [],
       "imgs": [],
-      "created": 1794205870920
+      "created": 1794205870920,
+      "type": "theory"
     },
     {
       "id": "qmw8w27qbkwx4a",
@@ -90,7 +95,8 @@
       "correct": 0,
       "qimgs": [],
       "imgs": [],
-      "created": 1794206226247
+      "created": 1794206226247,
+      "type": "theory"
     },
     {
       "id": "q1a1bf1b0a35035he",
@@ -106,7 +112,8 @@
       "correct": 3,
       "qimgs": [],
       "imgs": [],
-      "created": 1794207582773
+      "created": 1794207582773,
+      "type": "theory"
     },
     {
       "id": "qmw8xswecw5dw8",
@@ -124,7 +131,8 @@
       "imgs": [
         "data/img/qmw8xswecw5dw8-adxzbx.png"
       ],
-      "created": 1794209153064
+      "created": 1794209153064,
+      "type": "theory"
     },
     {
       "id": "qmw8y1ireml5cv",
@@ -140,7 +148,8 @@
       "correct": 0,
       "qimgs": [],
       "imgs": [],
-      "created": 1794209553084
+      "created": 1794209553084,
+      "type": "theory"
     }
   ]
 }

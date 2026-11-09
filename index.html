@@ -161,6 +161,10 @@ pre.fmt { background: var(--paper); border: 1px solid var(--line); border-radius
 @media (max-width: 480px) { .grid2 { grid-template-columns: 1fr; } }
 ol.steps { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; font-size: 14px; }
 .ok { color: var(--keep); }
+.pill.t-theory { background: transparent; color: var(--muted); border: 1px solid var(--line); }
+.pill.t-calc { background: color-mix(in srgb, var(--accent) 14%, transparent); color: var(--accent); }
+.seg button .cnt { font-variant-numeric: tabular-nums; opacity: .75; margin-left: 4px; }
+.quiz-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-bottom: 12px; }
 strong { font-weight: 800; }
 .qtext strong { font-weight: 800; }
 .field-head label { font-size: 14px; font-weight: 600; }
@@ -219,6 +223,14 @@ strong { font-weight: 800; }
 
   <!-- 문제 풀기 -->
   <section id="view-quiz">
+    <div class="quiz-bar">
+      <span class="hint">풀 문제</span>
+      <div class="seg" role="group" aria-label="풀 문제 분류" id="quizCatSeg">
+        <button type="button" data-c="all" aria-pressed="true">전체<span class="cnt"></span></button>
+        <button type="button" data-c="theory" aria-pressed="false">이론<span class="cnt"></span></button>
+        <button type="button" data-c="calc" aria-pressed="false">계산<span class="cnt"></span></button>
+      </div>
+    </div>
     <div class="card" id="quizCard"></div>
   </section>
 
@@ -233,6 +245,13 @@ strong { font-weight: 800; }
       </div>
 
       <form id="formOne">
+        <div class="field">
+          <label>문제 유형</label>
+          <div><div class="seg type-seg" role="group" aria-label="문제 유형">
+            <button type="button" data-t="theory" aria-pressed="true">이론문제</button>
+            <button type="button" data-t="calc" aria-pressed="false">계산문제</button>
+          </div></div>
+        </div>
         <div class="field">
           <div class="field-head"><label for="inQ">문제</label><button type="button" class="bold-btn" data-target="inQ" title="선택한 글자를 굵게 (Ctrl+B)">B 굵게</button></div>
           <textarea id="inQ" rows="4" placeholder="예) 대한민국 헌법상 국회의원의 임기는?"></textarea>
@@ -279,6 +298,13 @@ strong { font-weight: 800; }
 
       <form id="formBulk" hidden>
         <div class="field">
+          <label>문제 유형 <small>(이번에 붙여넣는 문제 모두에 적용돼요)</small></label>
+          <div><div class="seg type-seg" role="group" aria-label="문제 유형">
+            <button type="button" data-t="theory" aria-pressed="true">이론문제</button>
+            <button type="button" data-t="calc" aria-pressed="false">계산문제</button>
+          </div></div>
+        </div>
+        <div class="field">
           <label for="inBulk">문제 여러 개 붙여넣기</label>
           <textarea id="inBulk" rows="12" placeholder="Q: 첫 번째 문제&#10;A: 답&#10;E: 해설&#10;---&#10;Q: 두 번째 문제&#10;A: 답"></textarea>
         </div>
@@ -306,6 +332,11 @@ E: 해설 (선택, 여러 줄 가능)
           <button type="button" data-f="all" aria-pressed="true">전체</button>
           <button type="button" data-f="on" aria-pressed="false">출제 중</button>
           <button type="button" data-f="off" aria-pressed="false">안 보기</button>
+        </div>
+        <div class="seg" role="group" aria-label="유형 필터" id="catSeg">
+          <button type="button" data-c="all" aria-pressed="true">모든 유형</button>
+          <button type="button" data-c="theory" aria-pressed="false">이론</button>
+          <button type="button" data-c="calc" aria-pressed="false">계산</button>
         </div>
         <input type="search" id="search" placeholder="문제·답·해설 검색" style="flex:1 1 180px;width:auto">
       </div>
@@ -478,6 +509,7 @@ E: 해설 (선택, 여러 줄 가능)
     if (!Array.isArray(x.qimgs)) x.qimgs = [];
     if (typeof x.q !== "string") x.q = "";
     if (typeof x.a !== "string") x.a = "";
+    if (x.type !== "calc") x.type = "theory";
     if (!Array.isArray(x.choices)) x.choices = [];
     if (typeof x.correct !== "number" || x.correct < 0 || x.correct >= x.choices.length) x.correct = -1;
   }
@@ -590,9 +622,30 @@ E: 해설 (선택, 여러 줄 가능)
   // ================= 문제 풀기 =================
   let current = null, revealed = false, lastId = null, sessionCount = 0, picked = -1;
   const active = () => questions.filter(x => !isOff(x.id));
+  const TYPE_LABEL = { theory: "이론", calc: "계산" };
+  const CKEY = "quizbank.quizcat.v1";
+  let quizCat = "all";
+  try { const c = localStorage.getItem(CKEY); if (c === "theory" || c === "calc") quizCat = c; } catch (e) {}
+  const inCat = (x, c) => c === "all" || x.type === c;
+  const quizPool = () => active().filter(x => inCat(x, quizCat));
+
+  function setQuizCat(c) {
+    quizCat = c; try { localStorage.setItem(CKEY, c); } catch (e) {}
+    current = null; revealed = false; picked = -1; lastId = null;
+    render();
+  }
+  document.querySelectorAll("#quizCatSeg button").forEach(b => b.addEventListener("click", () => setQuizCat(b.dataset.c)));
+  function renderQuizCat() {
+    const act = active();
+    document.querySelectorAll("#quizCatSeg button").forEach(b => {
+      const c = b.dataset.c;
+      b.setAttribute("aria-pressed", String(c === quizCat));
+      b.querySelector(".cnt").textContent = ready ? String(act.filter(x => inCat(x, c)).length) : "";
+    });
+  }
 
   function pickNext() {
-    const pool = active();
+    const pool = quizPool();
     if (!pool.length) { current = null; return; }
     const cands = pool.length > 1 ? pool.filter(x => x.id !== lastId) : pool;
     current = cands[Math.floor(Math.random() * cands.length)].id;
@@ -603,21 +656,25 @@ E: 해설 (선택, 여러 줄 가능)
     const card = $("quizCard");
     card.replaceChildren();
     if (!ready) { card.appendChild(el("div", { class: "empty", text: "문제를 불러오는 중…" })); return; }
-    if (current && !questions.find(x => x.id === current && !isOff(x.id))) current = null;
+    if (current && !quizPool().find(x => x.id === current)) current = null;
     if (!current) pickNext();
     const it = questions.find(x => x.id === current);
     if (!it) {
-      const msg = loadError || (questions.length ? "출제할 문제가 없어요. 모두 ‘이후로 안 보기’로 넘겼습니다." : "아직 등록된 문제가 없어요.");
+      const catEmpty = quizCat !== "all" && !questions.some(x => inCat(x, quizCat));
+      const msg = loadError || (!questions.length ? "아직 등록된 문제가 없어요."
+        : catEmpty ? TYPE_LABEL[quizCat] + "문제가 아직 없어요."
+        : (quizCat === "all" ? "" : TYPE_LABEL[quizCat] + "문제 중 ") + "출제할 문제가 없어요. 모두 ‘이후로 안 보기’로 넘겼습니다.");
       const box = el("div", { class: "empty" }, el("p", { text: msg }));
-      if (questions.length) box.appendChild(el("button", { class: "btn", text: "안 보기 문제 목록 열기", onclick: () => { setFilter("off"); setView("list"); } }));
+      if (catEmpty) box.appendChild(el("button", { class: "btn", text: "전체 문제 풀기", onclick: () => setQuizCat("all") }));
+      else if (questions.length) box.appendChild(el("button", { class: "btn", text: "안 보기 문제 목록 열기", onclick: () => { setFilter("off"); setView("list"); } }));
       else if (admin) box.appendChild(el("button", { class: "btn primary", text: "첫 문제 입력하기", onclick: () => setView("add") }));
       card.appendChild(box);
       return;
     }
     const rv = reviewsOf(it.id);
     card.appendChild(el("div", { class: "qmeta" },
-      el("span", { text: "이번에 푼 문제 " + sessionCount + "개" }),
-      el("span", { text: "출제 중 " + active().length + "문제" + (rv ? " · 이 문제 " + rv + "번 봄" : "") })));
+      el("span", { class: "row", style: "gap:8px" }, el("span", { class: "pill t-" + it.type, text: TYPE_LABEL[it.type] + "문제" }), el("span", { text: "이번에 푼 문제 " + sessionCount + "개" })),
+      el("span", { text: (quizCat === "all" ? "출제 중 " : TYPE_LABEL[quizCat] + " ") + quizPool().length + "문제" + (rv ? " · 이 문제 " + rv + "번 봄" : "") })));
     if (it.q) card.appendChild(el("p", { class: "qtext", rich: it.q }));
     if (it.qimgs.length) card.appendChild(photoBlock(it.qimgs, "문제 사진"));
     if (it.choices.length) card.appendChild(choiceList(it));
@@ -877,7 +934,7 @@ E: 해설 (선택, 여러 줄 가능)
       if (editingId) {
         await mutateQuestions(list => {
           const i = list.findIndex(x => x.id === id);
-          const rec = Object.assign({}, i >= 0 ? list[i] : { id, created: Date.now() }, { q, a, e: ex, choices, correct, qimgs, imgs });
+          const rec = Object.assign({}, i >= 0 ? list[i] : { id, created: Date.now() }, { q, a, e: ex, type: draftType, choices, correct, qimgs, imgs });
           if (i >= 0) list[i] = rec; else list.push(rec);
           return list;
         }, "문제 수정: " + label(q));
@@ -885,13 +942,26 @@ E: 해설 (선택, 여러 줄 가능)
         for (const p of before.filter(p => !keep.includes(p))) { try { await ghDelete(p, "사진 삭제: " + p); } catch (err) {} }
         endEdit(); setView("list"); showToast("수정했어요.", null);
       } else {
-        await mutateQuestions(list => { list.push({ id, q, a, e: ex, choices, correct, qimgs, imgs, created: Date.now() }); return list; }, "문제 추가: " + label(q));
+        await mutateQuestions(list => { list.push({ id, q, a, e: ex, type: draftType, choices, correct, qimgs, imgs, created: Date.now() }); return list; }, "문제 추가: " + label(q));
         clearForm(); msg.textContent = "저장했어요. 다음 문제를 입력하세요."; $("inQ").focus();
       }
     } catch (err) { msg.textContent = friendly(err); }
     busy = false; $("saveOne").disabled = false;
   });
   $("cancelEdit").addEventListener("click", () => { endEdit(); setView("list"); });
+
+  const TKEY = "quizbank.lasttype.v1";
+  let draftType = "theory";
+  try { if (localStorage.getItem(TKEY) === "calc") draftType = "calc"; } catch (e) {}
+  function setDraftType(t) {
+    draftType = t === "calc" ? "calc" : "theory";
+    document.querySelectorAll(".type-seg button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.t === draftType)));
+  }
+  document.querySelectorAll(".type-seg button").forEach(b => b.addEventListener("click", () => {
+    setDraftType(b.dataset.t);
+    if (!editingId) { try { localStorage.setItem(TKEY, draftType); } catch (e) {} }
+  }));
+  setDraftType(draftType);
 
   function clearForm() { $("inQ").value = ""; $("inA").value = ""; $("inE").value = ""; drafts.Q = []; drafts.E = []; renderThumbs(); chDraft = []; chCorrect = -1; renderChoices(); }
   function startEdit(it) {
@@ -902,11 +972,13 @@ E: 해설 (선택, 여러 줄 가능)
     drafts.E = it.imgs.map(p => ({ path: p }));
     renderThumbs();
     chDraft = it.choices.slice(); chCorrect = it.correct; renderChoices();
+    setDraftType(it.type);
     $("saveOne").textContent = "수정 저장"; $("cancelEdit").hidden = false; $("oneMsg").textContent = "";
     setMode(false); setView("add"); $("inQ").focus();
   }
   function endEdit() {
     editingId = null; clearForm();
+    try { setDraftType(localStorage.getItem(TKEY) === "calc" ? "calc" : "theory"); } catch (e) { setDraftType("theory"); }
     $("saveOne").textContent = "저장"; $("cancelEdit").hidden = true; $("oneMsg").textContent = "";
   }
 
@@ -953,16 +1025,21 @@ E: 해설 (선택, 여러 줄 가능)
     busy = true; $("saveBulk").disabled = true; $("bulkMsg").textContent = "저장 중…";
     try {
       const now = Date.now();
-      const recs = good.map((x, i) => ({ id: newId() + i, q: x.q, a: x.a, e: x.e, choices: x.choices, correct: x.correct, qimgs: [], imgs: [], created: now + i }));
+      const recs = good.map((x, i) => ({ id: newId() + i, q: x.q, a: x.a, e: x.e, type: draftType, choices: x.choices, correct: x.correct, qimgs: [], imgs: [], created: now + i }));
       await mutateQuestions(l => l.concat(recs), "문제 " + recs.length + "개 추가");
       $("inBulk").value = "";
-      $("bulkMsg").textContent = recs.length + "개 저장했어요." + (bad ? " 문제나 답이 빠진 " + bad + "개는 건너뛰었어요." : "");
+      $("bulkMsg").textContent = TYPE_LABEL[draftType] + "문제 " + recs.length + "개 저장했어요." + (bad ? " 문제나 답이 빠진 " + bad + "개는 건너뛰었어요." : "");
     } catch (err) { $("bulkMsg").textContent = friendly(err); }
     busy = false; $("saveBulk").disabled = false;
   });
 
   // ================= 목록 =================
-  let filter = "all", confirmDel = null;
+  let filter = "all", listCat = "all", confirmDel = null;
+  document.querySelectorAll("#catSeg button").forEach(b => b.addEventListener("click", () => {
+    listCat = b.dataset.c;
+    document.querySelectorAll("#catSeg button").forEach(x => x.setAttribute("aria-pressed", String(x.dataset.c === listCat)));
+    renderList();
+  }));
   function setFilter(f) {
     filter = f;
     document.querySelectorAll("#filterSeg button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.f === f)));
@@ -985,6 +1062,7 @@ E: 해설 (선택, 여러 줄 가능)
     const term = $("search").value.trim().toLowerCase();
     const rows = questions
       .filter(x => filter === "all" || (filter === "on" ? !isOff(x.id) : isOff(x.id)))
+      .filter(x => inCat(x, listCat))
       .filter(x => !term || (x.q + "\n" + x.a + "\n" + (x.e || "") + "\n" + x.choices.join("\n")).toLowerCase().includes(term))
       .sort((a, b) => (b.created || 0) - (a.created || 0));
     if (!rows.length) {
@@ -994,6 +1072,7 @@ E: 해설 (선택, 여러 줄 가능)
     rows.forEach(it => {
       const off = isOff(it.id), n = it.imgs.length + it.qimgs.length, rv = reviewsOf(it.id);
       const bar = el("div", { class: "bar" },
+        el("span", { class: "pill t-" + it.type, text: TYPE_LABEL[it.type] }),
         el("span", { class: "pill " + (off ? "off" : "on"), text: off ? "안 보기" : "출제 중" }),
         n ? el("span", { class: "hint", text: "사진 " + n + "장" }) : null,
         rv ? el("span", { class: "hint", text: "본 횟수 " + rv }) : null,
@@ -1067,6 +1146,7 @@ E: 해설 (선택, 여러 줄 가능)
       $("stats").replaceChildren("전체 ", el("b", { text: String(questions.length) }), " · 출제 중 ", el("b", { text: String(on) }), " · 안 보기 ", el("b", { text: String(off) }));
     } else $("stats").textContent = "불러오는 중…";
     renderAdmin();
+    renderQuizCat();
     if (view === "quiz") renderQuiz();
     if (view === "list") renderList();
   }
