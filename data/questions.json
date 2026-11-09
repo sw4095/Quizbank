@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-11-09T03:34:38.954Z",
+  "updated": "2026-11-09T03:39:53.014Z",
   "questions": [
     {
       "id": "qmw8pjktdlpofr",
@@ -18,6 +18,17 @@
       "qimgs": [],
       "imgs": [],
       "created": 1794195278954
+    },
+    {
+      "id": "qmw8pqb4nd8qz4",
+      "q": "비중이 무거운 금속부터 차례로 나열하시오.",
+      "a": "중금속 : Os > Ir > Pt > Au > W > Pb > Ag > Mo > Cu > Ni > Fe > Mn > Cr > Zn > V > Sn\n경금속 : Ti > Al > Be > Mg > Na > Li",
+      "e": "오리 팔아서 돈 (백금, 금) 벌자 텅납 (통장납부) 은몰구 니빼(Fe) 망ㅋ,,, 아바주\n티알베망나니",
+      "choices": [],
+      "correct": -1,
+      "qimgs": [],
+      "imgs": [],
+      "created": 1794195593014
     }
   ]
 }
