@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-11-10T07:35:47.808Z",
+  "updated": "2026-11-10T08:13:22.234Z",
   "questions": [
     {
       "id": "qmw8pjktdlpofr",
@@ -390,6 +390,24 @@
       "qimgs": [],
       "imgs": [],
       "created": 1794296147808
+    },
+    {
+      "id": "qmwaexv77w4f26",
+      "q": "다음 중 철에 탄소가 고용되어 α철로 될 때의 고용체는 무엇인가?",
+      "a": "",
+      "e": "",
+      "type": "theory",
+      "core": false,
+      "choices": [
+        "고정형 고용체",
+        "편석 고용체",
+        "치환형 고용체",
+        "침입형 고용체"
+      ],
+      "correct": 3,
+      "qimgs": [],
+      "imgs": [],
+      "created": 1794298402234
     }
   ]
 }
