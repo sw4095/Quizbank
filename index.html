@@ -725,6 +725,7 @@ E: 해설 (선택, 여러 줄 가능)
         it.core ? el("span", { class: "pill core", text: "코어" }) : null,
         el("span", { text: "이번에 푼 문제 " + sessionCount + "개" })),
       el("span", { class: "row", style: "gap:4px 10px" },
+        moveToTheoryBtn(it),
         scoreEl(it.id),
         el("span", { text: (quizCat === "all" ? "출제 중 " : TYPE_LABEL[quizCat] + " ") + quizPool().length + "문제" + (rv ? " · 이 문제 " + rv + "번 봄" : "") }))));
     if (it.q) card.appendChild(el("p", { class: "qtext", rich: it.q }));
@@ -758,6 +759,21 @@ E: 해설 (선택, 여러 줄 가능)
         el("button", { class: "btn drop", text: "이후로 안 보기", onclick: () => next(it, true) })));
       card.appendChild(el("div", { class: "hint", text: "단축키: 1 다음에 또 보기 · 2 이후로 안 보기 · 사진은 누르면 크게 보여요" }));
     }
+  }
+
+  // [임시] 기계공작법 분류로 풀 때만 보이는 '이론으로 이동' 버튼 (기계공작법 분류를 없앨 때 함께 삭제)
+  function moveToTheoryBtn(it) {
+    if (quizCat !== "mach" || it.type !== "mach" || !admin) return null;
+    const b = el("button", { type: "button", class: "btn small", text: "이론으로 이동" });
+    b.addEventListener("click", async () => {
+      b.disabled = true; b.textContent = "옮기는 중…";
+      const setType = (t) => mutateQuestions(list => list.map(x => x.id === it.id ? Object.assign({}, x, { type: t }) : x), (t === "theory" ? "이론으로 이동: " : "기계공작법으로 되돌림: ") + label(it.q));
+      try {
+        await setType("theory");
+        showToast("이론문제로 옮겼어요.", async () => { try { await setType("mach"); } catch (er) { showToast(friendly(er), null); } });
+      } catch (e) { b.disabled = false; b.textContent = "이론으로 이동"; showToast(friendly(e), null); }
+    });
+    return b;
   }
 
   function reveal(i) {
