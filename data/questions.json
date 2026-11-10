@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-11-10T06:21:09.058Z",
+  "updated": "2026-11-10T06:27:20.099Z",
   "questions": [
     {
       "id": "qmw8pjktdlpofr",
@@ -321,6 +321,24 @@
       "qimgs": [],
       "imgs": [],
       "created": 1794291669058
+    },
+    {
+      "id": "qmwab5gy8ayw9d",
+      "q": "다음 물음에 답하시오.\n[작게]마찰계수와 나선각(리드각)이 같을 경우, 삼각나사보다 사각나사의 마찰력이 크다. (O/X)[/작게]",
+      "a": "",
+      "e": "",
+      "type": "theory",
+      "core": false,
+      "choices": [
+        "O",
+        "X"
+      ],
+      "correct": 1,
+      "qimgs": [],
+      "imgs": [
+        "data/img/qmwab5gy8ayw9d-wob3pk.png"
+      ],
+      "created": 1794292040099
     }
   ]
 }
