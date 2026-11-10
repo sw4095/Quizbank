@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-11-10T06:02:15.510Z",
+  "updated": "2026-11-10T06:02:26.503Z",
   "questions": [
     {
       "id": "qmw8pjktdlpofr",
@@ -63,7 +63,8 @@
       "qimgs": [],
       "imgs": [],
       "created": 1794205688646,
-      "type": "theory"
+      "type": "theory",
+      "core": true
     },
     {
       "id": "qmw8vull2cnyc2",
