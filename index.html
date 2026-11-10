@@ -162,6 +162,12 @@ pre.fmt { background: var(--paper); border: 1px solid var(--line); border-radius
 ol.steps { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; font-size: 14px; }
 .ok { color: var(--keep); }
 .pill.t-theory { background: transparent; color: var(--muted); border: 1px solid var(--line); }
+.pill.core { background: color-mix(in srgb, var(--mark) 70%, transparent); color: var(--ink); }
+.score { font-variant-numeric: tabular-nums; }
+.score .r { color: var(--keep); font-weight: 600; }
+.score .w { color: var(--drop); font-weight: 600; }
+.core-check { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; cursor: pointer; }
+.core-check input { width: 16px; height: 16px; accent-color: var(--accent); }
 .pill.t-calc { background: color-mix(in srgb, var(--accent) 14%, transparent); color: var(--accent); }
 .seg button .cnt { font-variant-numeric: tabular-nums; opacity: .75; margin-left: 4px; }
 .quiz-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-bottom: 12px; }
@@ -234,6 +240,7 @@ strong { font-weight: 800; }
         <button type="button" data-c="all" aria-pressed="true">전체<span class="cnt"></span></button>
         <button type="button" data-c="theory" aria-pressed="false">이론<span class="cnt"></span></button>
         <button type="button" data-c="calc" aria-pressed="false">계산<span class="cnt"></span></button>
+        <button type="button" data-c="core" aria-pressed="false">코어<span class="cnt"></span></button>
       </div>
     </div>
     <div class="card" id="quizCard"></div>
@@ -252,10 +259,11 @@ strong { font-weight: 800; }
       <form id="formOne">
         <div class="field">
           <label>문제 유형</label>
-          <div><div class="seg type-seg" role="group" aria-label="문제 유형">
+          <div class="row"><div class="seg type-seg" role="group" aria-label="문제 유형">
             <button type="button" data-t="theory" aria-pressed="true">이론문제</button>
             <button type="button" data-t="calc" aria-pressed="false">계산문제</button>
-          </div></div>
+          </div>
+          <label class="core-check"><input type="checkbox" class="core-input"> 코어문제 (중요 표시)</label></div>
         </div>
         <div class="field">
           <div class="field-head"><label for="inQ">문제</label><span class="fmt-btns"><button type="button" class="bold-btn" data-target="inQ" title="선택한 글자를 굵게 (Ctrl+B)">B 굵게</button><button type="button" class="bold-btn small-btn" data-target="inQ" data-fmt="small" title="선택한 글자를 작게 (Ctrl+Shift+S)">가 작게</button></span></div>
@@ -304,10 +312,11 @@ strong { font-weight: 800; }
       <form id="formBulk" hidden>
         <div class="field">
           <label>문제 유형 <small>(이번에 붙여넣는 문제 모두에 적용돼요)</small></label>
-          <div><div class="seg type-seg" role="group" aria-label="문제 유형">
+          <div class="row"><div class="seg type-seg" role="group" aria-label="문제 유형">
             <button type="button" data-t="theory" aria-pressed="true">이론문제</button>
             <button type="button" data-t="calc" aria-pressed="false">계산문제</button>
-          </div></div>
+          </div>
+          <label class="core-check"><input type="checkbox" class="core-input"> 코어문제 (중요 표시)</label></div>
         </div>
         <div class="field">
           <label for="inBulk">문제 여러 개 붙여넣기</label>
@@ -343,6 +352,7 @@ E: 해설 (선택, 여러 줄 가능)
           <button type="button" data-c="all" aria-pressed="true">모든 유형</button>
           <button type="button" data-c="theory" aria-pressed="false">이론</button>
           <button type="button" data-c="calc" aria-pressed="false">계산</button>
+          <button type="button" data-c="core" aria-pressed="false">코어</button>
         </div>
         <input type="search" id="search" placeholder="문제·답·해설 검색" style="flex:1 1 180px;width:auto">
       </div>
@@ -409,8 +419,17 @@ E: 해설 (선택, 여러 줄 가능)
 
   // 기기별 진행 상황 (안 보기 / 본 횟수)
   const PKEY = "quizbank.progress.v1";
-  let progress = { off: {}, reviews: {} };
-  try { const p = JSON.parse(localStorage.getItem(PKEY) || "null"); if (p && p.off && p.reviews) progress = p; } catch (e) {}
+  let progress = { off: {}, reviews: {}, right: {}, wrong: {} };
+  try { const p = JSON.parse(localStorage.getItem(PKEY) || "null"); if (p && p.off && p.reviews) progress = Object.assign(progress, p); } catch (e) {}
+  if (!progress.right) progress.right = {};
+  if (!progress.wrong) progress.wrong = {};
+  const rightOf = (id) => progress.right[id] || 0;
+  const wrongOf = (id) => progress.wrong[id] || 0;
+  function scoreEl(id) {
+    const r = rightOf(id), w = wrongOf(id);
+    if (!r && !w) return null;
+    return el("span", { class: "score" }, document.createTextNode("맞음 "), el("span", { class: "r", text: String(r) }), document.createTextNode(" · 틀림 "), el("span", { class: "w", text: String(w) }));
+  }
   function saveProgress() { try { localStorage.setItem(PKEY, JSON.stringify(progress)); } catch (e) {} }
   const isOff = (id) => !!progress.off[id];
   const reviewsOf = (id) => progress.reviews[id] || 0;
@@ -516,6 +535,7 @@ E: 해설 (선택, 여러 줄 가능)
     if (typeof x.q !== "string") x.q = "";
     if (typeof x.a !== "string") x.a = "";
     if (x.type !== "calc") x.type = "theory";
+    x.core = x.core === true;
     if (!Array.isArray(x.choices)) x.choices = [];
     if (typeof x.correct !== "number" || x.correct < 0 || x.correct >= x.choices.length) x.correct = -1;
   }
@@ -642,11 +662,11 @@ E: 해설 (선택, 여러 줄 가능)
   // ================= 문제 풀기 =================
   let current = null, revealed = false, lastId = null, sessionCount = 0, picked = -1;
   const active = () => questions.filter(x => !isOff(x.id));
-  const TYPE_LABEL = { theory: "이론", calc: "계산" };
+  const TYPE_LABEL = { theory: "이론", calc: "계산", core: "코어" };
   const CKEY = "quizbank.quizcat.v1";
   let quizCat = "all";
-  try { const c = localStorage.getItem(CKEY); if (c === "theory" || c === "calc") quizCat = c; } catch (e) {}
-  const inCat = (x, c) => c === "all" || x.type === c;
+  try { const c = localStorage.getItem(CKEY); if (c === "theory" || c === "calc" || c === "core") quizCat = c; } catch (e) {}
+  const inCat = (x, c) => c === "all" || (c === "core" ? x.core : x.type === c);
   const quizPool = () => active().filter(x => inCat(x, quizCat));
 
   function setQuizCat(c) {
@@ -693,8 +713,13 @@ E: 해설 (선택, 여러 줄 가능)
     }
     const rv = reviewsOf(it.id);
     card.appendChild(el("div", { class: "qmeta" },
-      el("span", { class: "row", style: "gap:8px" }, el("span", { class: "pill t-" + it.type, text: TYPE_LABEL[it.type] + "문제" }), el("span", { text: "이번에 푼 문제 " + sessionCount + "개" })),
-      el("span", { text: (quizCat === "all" ? "출제 중 " : TYPE_LABEL[quizCat] + " ") + quizPool().length + "문제" + (rv ? " · 이 문제 " + rv + "번 봄" : "") })));
+      el("span", { class: "row", style: "gap:8px" },
+        el("span", { class: "pill t-" + it.type, text: TYPE_LABEL[it.type] + "문제" }),
+        it.core ? el("span", { class: "pill core", text: "코어" }) : null,
+        el("span", { text: "이번에 푼 문제 " + sessionCount + "개" })),
+      el("span", { class: "row", style: "gap:4px 10px" },
+        scoreEl(it.id),
+        el("span", { text: (quizCat === "all" ? "출제 중 " : TYPE_LABEL[quizCat] + " ") + quizPool().length + "문제" + (rv ? " · 이 문제 " + rv + "번 봄" : "") }))));
     if (it.q) card.appendChild(el("p", { class: "qtext", rich: it.q }));
     if (it.qimgs.length) card.appendChild(photoBlock(it.qimgs, "문제 사진"));
     if (it.choices.length) card.appendChild(choiceList(it));
@@ -730,7 +755,15 @@ E: 해설 (선택, 여러 줄 가능)
 
   function reveal(i) {
     if (revealed) return;
-    if (typeof i === "number") picked = i;
+    if (typeof i === "number") {
+      picked = i;
+      const it = questions.find(x => x.id === current);
+      if (it && it.correct >= 0) {
+        const bucket = i === it.correct ? progress.right : progress.wrong;
+        bucket[it.id] = (bucket[it.id] || 0) + 1;
+        saveProgress();
+      }
+    }
     revealed = true; renderQuiz();
     const k = $("keepBtn"); if (k) k.focus();
   }
@@ -959,7 +992,7 @@ E: 해설 (선택, 여러 줄 가능)
       if (editingId) {
         await mutateQuestions(list => {
           const i = list.findIndex(x => x.id === id);
-          const rec = Object.assign({}, i >= 0 ? list[i] : { id, created: Date.now() }, { q, a, e: ex, type: draftType, choices, correct, qimgs, imgs });
+          const rec = Object.assign({}, i >= 0 ? list[i] : { id, created: Date.now() }, { q, a, e: ex, type: draftType, core: coreOf("formOne"), choices, correct, qimgs, imgs });
           if (i >= 0) list[i] = rec; else list.push(rec);
           return list;
         }, "문제 수정: " + label(q));
@@ -967,7 +1000,7 @@ E: 해설 (선택, 여러 줄 가능)
         for (const p of before.filter(p => !keep.includes(p))) { try { await ghDelete(p, "사진 삭제: " + p); } catch (err) {} }
         endEdit(); setView("list"); showToast("수정했어요.", null);
       } else {
-        await mutateQuestions(list => { list.push({ id, q, a, e: ex, type: draftType, choices, correct, qimgs, imgs, created: Date.now() }); return list; }, "문제 추가: " + label(q));
+        await mutateQuestions(list => { list.push({ id, q, a, e: ex, type: draftType, core: coreOf("formOne"), choices, correct, qimgs, imgs, created: Date.now() }); return list; }, "문제 추가: " + label(q));
         clearForm(); msg.textContent = "저장했어요. 다음 문제를 입력하세요."; $("inQ").focus();
       }
     } catch (err) { msg.textContent = friendly(err); }
@@ -988,7 +1021,9 @@ E: 해설 (선택, 여러 줄 가능)
   }));
   setDraftType(draftType);
 
-  function clearForm() { $("inQ").value = ""; $("inA").value = ""; $("inE").value = ""; drafts.Q = []; drafts.E = []; renderThumbs(); chDraft = []; chCorrect = -1; renderChoices(); }
+  const coreOf = (formId) => !!document.querySelector("#" + formId + " .core-input").checked;
+  const setCore = (formId, v) => { document.querySelector("#" + formId + " .core-input").checked = !!v; };
+  function clearForm() { setCore("formOne", false); $("inQ").value = ""; $("inA").value = ""; $("inE").value = ""; drafts.Q = []; drafts.E = []; renderThumbs(); chDraft = []; chCorrect = -1; renderChoices(); }
   function startEdit(it) {
     if (!admin) return;
     editingId = it.id;
@@ -998,6 +1033,7 @@ E: 해설 (선택, 여러 줄 가능)
     renderThumbs();
     chDraft = it.choices.slice(); chCorrect = it.correct; renderChoices();
     setDraftType(it.type);
+    setCore("formOne", it.core);
     $("saveOne").textContent = "수정 저장"; $("cancelEdit").hidden = false; $("oneMsg").textContent = "";
     setMode(false); setView("add"); $("inQ").focus();
   }
@@ -1050,9 +1086,10 @@ E: 해설 (선택, 여러 줄 가능)
     busy = true; $("saveBulk").disabled = true; $("bulkMsg").textContent = "저장 중…";
     try {
       const now = Date.now();
-      const recs = good.map((x, i) => ({ id: newId() + i, q: x.q, a: x.a, e: x.e, type: draftType, choices: x.choices, correct: x.correct, qimgs: [], imgs: [], created: now + i }));
+      const recs = good.map((x, i) => ({ id: newId() + i, q: x.q, a: x.a, e: x.e, type: draftType, core: coreOf("formBulk"), choices: x.choices, correct: x.correct, qimgs: [], imgs: [], created: now + i }));
       await mutateQuestions(l => l.concat(recs), "문제 " + recs.length + "개 추가");
       $("inBulk").value = "";
+      setCore("formBulk", false);
       $("bulkMsg").textContent = TYPE_LABEL[draftType] + "문제 " + recs.length + "개 저장했어요." + (bad ? " 문제나 답이 빠진 " + bad + "개는 건너뛰었어요." : "");
     } catch (err) { $("bulkMsg").textContent = friendly(err); }
     busy = false; $("saveBulk").disabled = false;
@@ -1098,9 +1135,11 @@ E: 해설 (선택, 여러 줄 가능)
       const off = isOff(it.id), n = it.imgs.length + it.qimgs.length, rv = reviewsOf(it.id);
       const bar = el("div", { class: "bar" },
         el("span", { class: "pill t-" + it.type, text: TYPE_LABEL[it.type] }),
+        it.core ? el("span", { class: "pill core", text: "코어" }) : null,
         el("span", { class: "pill " + (off ? "off" : "on"), text: off ? "안 보기" : "출제 중" }),
         n ? el("span", { class: "hint", text: "사진 " + n + "장" }) : null,
         rv ? el("span", { class: "hint", text: "본 횟수 " + rv }) : null,
+        (() => { const sc = scoreEl(it.id); if (sc) sc.classList.add("hint"); return sc; })(),
         el("span", { class: "spacer" }),
         el("button", { class: "btn small", text: off ? "다시 출제" : "출제 제외", onclick: () => { if (off) delete progress.off[it.id]; else progress.off[it.id] = true; saveProgress(); render(); } }),
         admin ? el("button", { class: "btn small", text: "수정", onclick: () => startEdit(it) }) : null,
