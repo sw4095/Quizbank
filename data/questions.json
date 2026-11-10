@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-11-10T06:09:37.593Z",
+  "updated": "2026-11-10T06:11:37Z",
   "questions": [
     {
       "id": "qmw8pjktdlpofr",
@@ -287,6 +287,24 @@
         "data/img/q1a1c411de17lhfgd-tbolt.png"
       ],
       "created": 1794290867735
+    },
+    {
+      "id": "q1a1c4155f00z6e7s",
+      "q": "아래 <보기>에 명시된 유니파이 보통 나사의 피치와 바깥지름(호칭지름) 값으로 각각 옳은 것은?\n\n<보기>\n1/4-20UNC-2A",
+      "a": "",
+      "e": "",
+      "type": "calc",
+      "core": false,
+      "choices": [
+        "피치: 2.54mm, 바깥지름: 6.35mm",
+        "피치: 25.4mm, 바깥지름: 0.25mm",
+        "피치: 1.27mm, 바깥지름: 6.35mm",
+        "피치: 1.27mm, 바깥지름: 0.25mm"
+      ],
+      "correct": -1,
+      "qimgs": [],
+      "imgs": [],
+      "created": 1794291097344
     }
   ]
 }
