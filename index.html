@@ -168,6 +168,7 @@ ol.steps { margin: 0; padding-left: 20px; display: flex; flex-direction: column;
 .score .w { color: var(--drop); font-weight: 600; }
 .core-check { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; cursor: pointer; }
 .core-check input { width: 16px; height: 16px; accent-color: var(--accent); }
+.pill.t-mach { background: color-mix(in srgb, var(--keep) 13%, transparent); color: var(--keep); }
 .pill.t-calc { background: color-mix(in srgb, var(--accent) 14%, transparent); color: var(--accent); }
 .seg button .cnt { font-variant-numeric: tabular-nums; opacity: .75; margin-left: 4px; }
 .quiz-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-bottom: 12px; }
@@ -240,6 +241,7 @@ strong { font-weight: 800; }
         <button type="button" data-c="all" aria-pressed="true">전체<span class="cnt"></span></button>
         <button type="button" data-c="theory" aria-pressed="false">이론<span class="cnt"></span></button>
         <button type="button" data-c="calc" aria-pressed="false">계산<span class="cnt"></span></button>
+        <button type="button" data-c="mach" aria-pressed="false">기계공작법<span class="cnt"></span></button>
         <button type="button" data-c="core" aria-pressed="false">코어<span class="cnt"></span></button>
       </div>
     </div>
@@ -262,6 +264,7 @@ strong { font-weight: 800; }
           <div class="row"><div class="seg type-seg" role="group" aria-label="문제 유형">
             <button type="button" data-t="theory" aria-pressed="true">이론문제</button>
             <button type="button" data-t="calc" aria-pressed="false">계산문제</button>
+            <button type="button" data-t="mach" aria-pressed="false">기계공작법</button>
           </div>
           <label class="core-check"><input type="checkbox" class="core-input"> 코어문제 (중요 표시)</label></div>
         </div>
@@ -315,6 +318,7 @@ strong { font-weight: 800; }
           <div class="row"><div class="seg type-seg" role="group" aria-label="문제 유형">
             <button type="button" data-t="theory" aria-pressed="true">이론문제</button>
             <button type="button" data-t="calc" aria-pressed="false">계산문제</button>
+            <button type="button" data-t="mach" aria-pressed="false">기계공작법</button>
           </div>
           <label class="core-check"><input type="checkbox" class="core-input"> 코어문제 (중요 표시)</label></div>
         </div>
@@ -352,6 +356,7 @@ E: 해설 (선택, 여러 줄 가능)
           <button type="button" data-c="all" aria-pressed="true">모든 유형</button>
           <button type="button" data-c="theory" aria-pressed="false">이론</button>
           <button type="button" data-c="calc" aria-pressed="false">계산</button>
+          <button type="button" data-c="mach" aria-pressed="false">기계공작법</button>
           <button type="button" data-c="core" aria-pressed="false">코어</button>
         </div>
         <input type="search" id="search" placeholder="문제·답·해설 검색" style="flex:1 1 180px;width:auto">
@@ -534,7 +539,7 @@ E: 해설 (선택, 여러 줄 가능)
     if (!Array.isArray(x.qimgs)) x.qimgs = [];
     if (typeof x.q !== "string") x.q = "";
     if (typeof x.a !== "string") x.a = "";
-    if (x.type !== "calc") x.type = "theory";
+    if (x.type !== "calc" && x.type !== "mach") x.type = "theory";
     x.core = x.core === true;
     if (!Array.isArray(x.choices)) x.choices = [];
     if (typeof x.correct !== "number" || x.correct < 0 || x.correct >= x.choices.length) x.correct = -1;
@@ -662,10 +667,12 @@ E: 해설 (선택, 여러 줄 가능)
   // ================= 문제 풀기 =================
   let current = null, revealed = false, lastId = null, sessionCount = 0, picked = -1;
   const active = () => questions.filter(x => !isOff(x.id));
-  const TYPE_LABEL = { theory: "이론", calc: "계산", core: "코어" };
+  const TYPE_LABEL = { theory: "이론", calc: "계산", mach: "기계공작법", core: "코어" };
+  const typeTitle = (t) => t === "mach" ? "기계공작법" : TYPE_LABEL[t] + "문제";
+  const catName = (c) => c === "mach" ? "기계공작법 문제" : TYPE_LABEL[c] + "문제";
   const CKEY = "quizbank.quizcat.v1";
   let quizCat = "all";
-  try { const c = localStorage.getItem(CKEY); if (c === "theory" || c === "calc" || c === "core") quizCat = c; } catch (e) {}
+  try { const c = localStorage.getItem(CKEY); if (c === "theory" || c === "calc" || c === "mach" || c === "core") quizCat = c; } catch (e) {}
   const inCat = (x, c) => c === "all" || (c === "core" ? x.core : x.type === c);
   const quizPool = () => active().filter(x => inCat(x, quizCat));
 
@@ -702,8 +709,8 @@ E: 해설 (선택, 여러 줄 가능)
     if (!it) {
       const catEmpty = quizCat !== "all" && !questions.some(x => inCat(x, quizCat));
       const msg = loadError || (!questions.length ? "아직 등록된 문제가 없어요."
-        : catEmpty ? TYPE_LABEL[quizCat] + "문제가 아직 없어요."
-        : (quizCat === "all" ? "" : TYPE_LABEL[quizCat] + "문제 중 ") + "출제할 문제가 없어요. 모두 ‘이후로 안 보기’로 넘겼습니다.");
+        : catEmpty ? catName(quizCat) + "가 아직 없어요."
+        : (quizCat === "all" ? "" : catName(quizCat) + " 중 ") + "출제할 문제가 없어요. 모두 ‘이후로 안 보기’로 넘겼습니다.");
       const box = el("div", { class: "empty" }, el("p", { text: msg }));
       if (catEmpty) box.appendChild(el("button", { class: "btn", text: "전체 문제 풀기", onclick: () => setQuizCat("all") }));
       else if (questions.length) box.appendChild(el("button", { class: "btn", text: "안 보기 문제 목록 열기", onclick: () => { setFilter("off"); setView("list"); } }));
@@ -714,7 +721,7 @@ E: 해설 (선택, 여러 줄 가능)
     const rv = reviewsOf(it.id);
     card.appendChild(el("div", { class: "qmeta" },
       el("span", { class: "row", style: "gap:8px" },
-        el("span", { class: "pill t-" + it.type, text: TYPE_LABEL[it.type] + "문제" }),
+        el("span", { class: "pill t-" + it.type, text: typeTitle(it.type) }),
         it.core ? el("span", { class: "pill core", text: "코어" }) : null,
         el("span", { text: "이번에 푼 문제 " + sessionCount + "개" })),
       el("span", { class: "row", style: "gap:4px 10px" },
@@ -1010,9 +1017,9 @@ E: 해설 (선택, 여러 줄 가능)
 
   const TKEY = "quizbank.lasttype.v1";
   let draftType = "theory";
-  try { if (localStorage.getItem(TKEY) === "calc") draftType = "calc"; } catch (e) {}
+  try { const lt = localStorage.getItem(TKEY); if (lt === "calc" || lt === "mach") draftType = lt; } catch (e) {}
   function setDraftType(t) {
-    draftType = t === "calc" ? "calc" : "theory";
+    draftType = (t === "calc" || t === "mach") ? t : "theory";
     document.querySelectorAll(".type-seg button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.t === draftType)));
   }
   document.querySelectorAll(".type-seg button").forEach(b => b.addEventListener("click", () => {
@@ -1039,7 +1046,7 @@ E: 해설 (선택, 여러 줄 가능)
   }
   function endEdit() {
     editingId = null; clearForm();
-    try { setDraftType(localStorage.getItem(TKEY) === "calc" ? "calc" : "theory"); } catch (e) { setDraftType("theory"); }
+    try { setDraftType(localStorage.getItem(TKEY) || "theory"); } catch (e) { setDraftType("theory"); }
     $("saveOne").textContent = "저장"; $("cancelEdit").hidden = true; $("oneMsg").textContent = "";
   }
 
@@ -1090,7 +1097,7 @@ E: 해설 (선택, 여러 줄 가능)
       await mutateQuestions(l => l.concat(recs), "문제 " + recs.length + "개 추가");
       $("inBulk").value = "";
       setCore("formBulk", false);
-      $("bulkMsg").textContent = TYPE_LABEL[draftType] + "문제 " + recs.length + "개 저장했어요." + (bad ? " 문제나 답이 빠진 " + bad + "개는 건너뛰었어요." : "");
+      $("bulkMsg").textContent = typeTitle(draftType) + " " + recs.length + "개 저장했어요." + (bad ? " 문제나 답이 빠진 " + bad + "개는 건너뛰었어요." : "");
     } catch (err) { $("bulkMsg").textContent = friendly(err); }
     busy = false; $("saveBulk").disabled = false;
   });
