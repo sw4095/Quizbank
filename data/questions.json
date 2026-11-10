@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-11-10T09:13:46.376Z",
+  "updated": "2026-11-10T09:15:37.814Z",
   "questions": [
     {
       "id": "qmw8pjktdlpofr",
@@ -609,6 +609,26 @@
       "qimgs": [],
       "imgs": [],
       "created": 1794301927364
+    },
+    {
+      "id": "qmwah5vvrz0g29",
+      "q": "목재 방부법의 종류로 옳지 못한 것은?",
+      "a": "",
+      "e": "",
+      "type": "theory",
+      "core": false,
+      "choices": [
+        "도포법",
+        "자비법",
+        "침재법",
+        "침투법"
+      ],
+      "correct": 2,
+      "qimgs": [],
+      "imgs": [
+        "data/img/qmwah5vvrz0g29-kcfd10.png"
+      ],
+      "created": 1794302137814
     }
   ]
 }
