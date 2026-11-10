@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-11-10T06:30:34Z",
+  "updated": "2026-11-10T07:11:00.103Z",
   "questions": [
     {
       "id": "qmw8pjktdlpofr",
@@ -357,6 +357,21 @@
       "qimgs": [],
       "imgs": [],
       "created": 1794292234686
+    },
+    {
+      "id": "qmwacpm5pa4cso",
+      "q": "Fe-C 평형 상태도를 그리고, 상태도에 변태점과 금속의 반응을 나타내시오.",
+      "a": "해설 참고",
+      "e": "",
+      "type": "theory",
+      "core": true,
+      "choices": [],
+      "correct": -1,
+      "qimgs": [],
+      "imgs": [
+        "data/img/qmwacpm5pa4cso-z7ew09.jpg"
+      ],
+      "created": 1794294660103
     }
   ]
 }
