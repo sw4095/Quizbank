@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-11-10T09:00:42.137Z",
+  "updated": "2026-11-10T09:07:12.476Z",
   "questions": [
     {
       "id": "qmw8pjktdlpofr",
@@ -550,6 +550,26 @@
       "qimgs": [],
       "imgs": [],
       "created": 1794301242137
+    },
+    {
+      "id": "qmwagv29d6h5iq",
+      "q": "주조법에서 쇳물의 주입속도 V를 4배 증가시키려고 한다. 이때, 탕구계의 높이를 어떻게 설계해야 하는가?",
+      "a": "",
+      "e": "",
+      "type": "theory",
+      "core": false,
+      "choices": [
+        "4배 높게 설계한다.",
+        "16배 높계 설계한다.",
+        "0.25배 낮게 설계한다.",
+        "0.0625배 낮게 설계한다."
+      ],
+      "correct": 1,
+      "qimgs": [],
+      "imgs": [
+        "data/img/qmwagv29d6h5iq-c9qk8e.png"
+      ],
+      "created": 1794301632476
     }
   ]
 }
