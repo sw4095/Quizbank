@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-11-10T09:17:49.092Z",
+  "updated": "2026-11-10T09:28:16.340Z",
   "questions": [
     {
       "id": "qmw8pjktdlpofr",
@@ -635,7 +635,7 @@
       "q": "주물가공 시 주물의 체적을 4배로 늘리고 표면적을 0.5배로 줄인 경우, 응고시간은 몇배가 되는가?",
       "a": "",
       "e": "",
-      "type": "theory",
+      "type": "mach",
       "core": false,
       "choices": [
         "8배가 된다.",
