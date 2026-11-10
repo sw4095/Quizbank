@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-11-10T08:14:16.017Z",
+  "updated": "2026-11-10T08:15:17.453Z",
   "questions": [
     {
       "id": "qmw8pjktdlpofr",
@@ -408,6 +408,22 @@
       "qimgs": [],
       "imgs": [],
       "created": 1794298402234
+    },
+    {
+      "id": "qmwaf0bwsu4orw",
+      "q": "다음 물음에 답하시오.\n[작게]금속 간 화합물은 일반적으로 간단한 결정구조를 갖는다. (O/X)[/작게]",
+      "a": "",
+      "e": "",
+      "type": "theory",
+      "core": false,
+      "choices": [
+        "O",
+        "X"
+      ],
+      "correct": 1,
+      "qimgs": [],
+      "imgs": [],
+      "created": 1794298517453
     }
   ]
 }
