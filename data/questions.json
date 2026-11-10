@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-11-10T09:07:12.476Z",
+  "updated": "2026-11-10T09:08:40.346Z",
   "questions": [
     {
       "id": "qmw8pjktdlpofr",
@@ -570,6 +570,27 @@
         "data/img/qmwagv29d6h5iq-c9qk8e.png"
       ],
       "created": 1794301632476
+    },
+    {
+      "id": "qmwagwxpcs0tt4",
+      "q": "목형 제작 시 고려 사항으로 옳지 못한 것은?",
+      "a": "",
+      "e": "",
+      "type": "theory",
+      "core": false,
+      "choices": [
+        "수축여유",
+        "목형구배",
+        "가공여유",
+        "목형의 무게",
+        "코어 프린트"
+      ],
+      "correct": 3,
+      "qimgs": [],
+      "imgs": [
+        "data/img/qmwagwxpcs0tt4-34r27f.png"
+      ],
+      "created": 1794301720346
     }
   ]
 }
