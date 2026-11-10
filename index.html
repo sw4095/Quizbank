@@ -172,6 +172,10 @@ strong { font-weight: 800; }
 .field-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .bold-btn { font: inherit; font-size: 13px; font-weight: 800; border: 1px solid var(--line); background: var(--card); color: var(--ink); border-radius: 6px; padding: 2px 9px; cursor: pointer; }
 .bold-btn:hover { border-color: var(--muted); }
+.fmt-btns { display: inline-flex; gap: 4px; }
+.bold-btn.small-btn { font-weight: 500; font-size: 11px; }
+.txt-small { font-size: 0.78em; line-height: 1.55; }
+.txt-small.multi { display: inline-block; vertical-align: top; max-width: 100%; }
 .choices { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
 .choice {
   width: 100%; text-align: left; font: inherit; color: var(--ink); background: var(--card);
@@ -253,7 +257,7 @@ strong { font-weight: 800; }
           </div></div>
         </div>
         <div class="field">
-          <div class="field-head"><label for="inQ">문제</label><button type="button" class="bold-btn" data-target="inQ" title="선택한 글자를 굵게 (Ctrl+B)">B 굵게</button></div>
+          <div class="field-head"><label for="inQ">문제</label><span class="fmt-btns"><button type="button" class="bold-btn" data-target="inQ" title="선택한 글자를 굵게 (Ctrl+B)">B 굵게</button><button type="button" class="bold-btn small-btn" data-target="inQ" data-fmt="small" title="선택한 글자를 작게 (Ctrl+Shift+S)">가 작게</button></span></div>
           <textarea id="inQ" rows="4" placeholder="예) 대한민국 헌법상 국회의원의 임기는?"></textarea>
         </div>
         <div class="field">
@@ -272,11 +276,11 @@ strong { font-weight: 800; }
           <div class="row" id="chBtns"></div>
         </div>
         <div class="field">
-          <div class="field-head"><label for="inA">답 <small id="ansHint"></small></label><button type="button" class="bold-btn" data-target="inA" title="선택한 글자를 굵게 (Ctrl+B)">B 굵게</button></div>
+          <div class="field-head"><label for="inA">답 <small id="ansHint"></small></label><span class="fmt-btns"><button type="button" class="bold-btn" data-target="inA" title="선택한 글자를 굵게 (Ctrl+B)">B 굵게</button><button type="button" class="bold-btn small-btn" data-target="inA" data-fmt="small" title="선택한 글자를 작게 (Ctrl+Shift+S)">가 작게</button></span></div>
           <textarea id="inA" rows="2" placeholder="예) 4년"></textarea>
         </div>
         <div class="field">
-          <div class="field-head"><label for="inE">해설 <small>(선택)</small></label><button type="button" class="bold-btn" data-target="inE" title="선택한 글자를 굵게 (Ctrl+B)">B 굵게</button></div>
+          <div class="field-head"><label for="inE">해설 <small>(선택)</small></label><span class="fmt-btns"><button type="button" class="bold-btn" data-target="inE" title="선택한 글자를 굵게 (Ctrl+B)">B 굵게</button><button type="button" class="bold-btn small-btn" data-target="inE" data-fmt="small" title="선택한 글자를 작게 (Ctrl+Shift+S)">가 작게</button></span></div>
           <textarea id="inE" rows="4" placeholder="예) 헌법 제42조: 국회의원의 임기는 4년으로 한다."></textarea>
         </div>
         <div class="field">
@@ -313,6 +317,7 @@ strong { font-weight: 800; }
 ② 보기2
 A: 답          ← 객관식은 A: ② 또는 A: 2 처럼 번호만 써도 돼요
                ← 굵게 하려면 **이렇게** 별 두 개로 감싸요
+               ← 작게 하려면 [작게]이렇게[/작게] 로 감싸요
 E: 해설 (선택, 여러 줄 가능)
 ---          ← 문제 사이 구분선</pre>
         <p class="hint" style="margin:0">사진은 저장한 뒤 ‘문제 목록’에서 수정을 눌러 붙일 수 있어요.</p>
@@ -590,8 +595,22 @@ E: 해설 (선택, 여러 줄 가능)
     render();
   }
 
-  // **굵게** 표시 → <strong> (HTML은 그대로 글자로 보여서 안전)
+  // [작게]…[/작게] → 작은 글씨, **굵게** → <strong> (HTML은 그대로 글자로 보여서 안전)
+  const SMALL_OPEN = "[작게]", SMALL_CLOSE = "[/작게]";
   function rich(text) {
+    const frag = document.createDocumentFragment();
+    const re = /\[작게\]([\s\S]*?)\[\/작게\]/g;
+    let last = 0, m;
+    text = String(text || "");
+    while ((m = re.exec(text))) {
+      if (m.index > last) frag.appendChild(richBold(text.slice(last, m.index)));
+      const sp = document.createElement("span"); sp.className = m[1].includes("\n") ? "txt-small multi" : "txt-small"; sp.appendChild(richBold(m[1])); frag.appendChild(sp);
+      last = re.lastIndex;
+    }
+    if (last < text.length) frag.appendChild(richBold(text.slice(last)));
+    return frag;
+  }
+  function richBold(text) {
     const frag = document.createDocumentFragment();
     const re = /\*\*([\s\S]+?)\*\*/g;
     let last = 0, m;
@@ -604,7 +623,7 @@ E: 해설 (선택, 여러 줄 가능)
     if (last < text.length) frag.appendChild(document.createTextNode(text.slice(last)));
     return frag;
   }
-  const plain = (t) => String(t || "").replace(/\*\*([\s\S]+?)\*\*/g, "$1");
+  const plain = (t) => String(t || "").replace(/\[\/?작게\]/g, "").replace(/\*\*([\s\S]+?)\*\*/g, "$1");
 
   function el(tag, attrs, ...kids) {
     const n = document.createElement(tag);
@@ -835,34 +854,39 @@ E: 해설 (선택, 여러 줄 가능)
     return { qimgs: drafts.Q.map(d => d.path), imgs: drafts.E.map(d => d.path) };
   }
   // 굵게: 선택 영역을 ** ** 로 감싸기 / 이미 감싸져 있으면 풀기
-  function toggleBold(t) {
+  function toggleBold(t) { toggleWrap(t, "**", "**"); }
+  function toggleSmall(t) { toggleWrap(t, SMALL_OPEN, SMALL_CLOSE); }
+  function toggleWrap(t, O, C) {
     if (!t || typeof t.selectionStart !== "number") return;
     const v = t.value, s0 = t.selectionStart, e0 = t.selectionEnd;
     const sel = v.slice(s0, e0);
     let nv, ns, ne;
-    if (v.slice(s0 - 2, s0) === "**" && v.slice(e0, e0 + 2) === "**") {
-      nv = v.slice(0, s0 - 2) + sel + v.slice(e0 + 2); ns = s0 - 2; ne = e0 - 2;
-    } else if (sel.length > 4 && sel.startsWith("**") && sel.endsWith("**")) {
-      nv = v.slice(0, s0) + sel.slice(2, -2) + v.slice(e0); ns = s0; ne = e0 - 4;
+    if (v.slice(s0 - O.length, s0) === O && v.slice(e0, e0 + C.length) === C) {
+      nv = v.slice(0, s0 - O.length) + sel + v.slice(e0 + C.length); ns = s0 - O.length; ne = e0 - O.length;
+    } else if (sel.length > O.length + C.length && sel.startsWith(O) && sel.endsWith(C)) {
+      nv = v.slice(0, s0) + sel.slice(O.length, sel.length - C.length) + v.slice(e0); ns = s0; ne = e0 - O.length - C.length;
     } else {
       const lead = sel.match(/^\s*/)[0], trail = sel.match(/\s*$/)[0];
       const core = sel.slice(lead.length, sel.length - trail.length);
-      nv = v.slice(0, s0) + lead + "**" + core + "**" + trail + v.slice(e0);
-      ns = s0 + lead.length + 2; ne = ns + core.length;
+      nv = v.slice(0, s0) + lead + O + core + C + trail + v.slice(e0);
+      ns = s0 + lead.length + O.length; ne = ns + core.length;
     }
     t.value = nv; t.focus(); t.setSelectionRange(ns, ne);
     t.dispatchEvent(new Event("input", { bubbles: true }));
   }
   document.querySelectorAll(".bold-btn").forEach(b => {
     b.addEventListener("mousedown", (e) => e.preventDefault());   // 입력칸 선택이 풀리지 않게
-    b.addEventListener("click", () => toggleBold($(b.dataset.target)));
+    b.addEventListener("click", () => (b.dataset.fmt === "small" ? toggleSmall : toggleBold)($(b.dataset.target)));
   });
   document.addEventListener("keydown", (e) => {
-    if (!(e.ctrlKey || e.metaKey) || e.key.toLowerCase() !== "b") return;
+    if (!(e.ctrlKey || e.metaKey)) return;
+    const k = e.key.toLowerCase();
+    const isBold = k === "b" && !e.shiftKey, isSmall = k === "s" && e.shiftKey;
+    if (!isBold && !isSmall) return;
     const t = e.target;
     if (!t || !t.closest || !t.closest("#formOne, #formBulk")) return;
     if (t.tagName !== "TEXTAREA" && !(t.tagName === "INPUT" && t.type === "text")) return;
-    e.preventDefault(); toggleBold(t);
+    e.preventDefault(); (isSmall ? toggleSmall : toggleBold)(t);
   });
 
   // 객관식 보기 편집
