@@ -244,6 +244,8 @@ strong { font-weight: 800; }
         <button type="button" data-c="mach" aria-pressed="false">기계공작법<span class="cnt"></span></button>
         <button type="button" data-c="core" aria-pressed="false">코어<span class="cnt"></span></button>
       </div>
+      <span class="hint" id="roundInfo"></span>
+      <button type="button" class="btn small" id="roundReset" hidden>처음부터 다시 섞기</button>
     </div>
     <div class="card" id="quizCard"></div>
   </section>
@@ -691,10 +693,44 @@ E: 해설 (선택, 여러 줄 가능)
     });
   }
 
+  // 한 바퀴(분류별로 따로) 다 풀 때까지 같은 문제가 다시 나오지 않게, 이번 바퀴에 푼 문제를 기기에 기록
+  const RKEY = "quizbank.round.v1";
+  let rounds = {};
+  try { const r = JSON.parse(localStorage.getItem(RKEY) || "null"); if (r && typeof r === "object") rounds = r; } catch (e) {}
+  const saveRounds = () => { try { localStorage.setItem(RKEY, JSON.stringify(rounds)); } catch (e) {} };
+  function roundDone() {
+    const ids = new Set(quizPool().map(x => x.id));
+    return (rounds[quizCat] || []).filter(id => ids.has(id));
+  }
+  function markDone(id) {
+    const list = rounds[quizCat] || (rounds[quizCat] = []);
+    if (!list.includes(id)) list.push(id);
+    saveRounds();
+  }
+  function renderRound() {
+    const total = ready ? quizPool().length : 0;
+    const done = ready ? roundDone().length : 0;
+    $("roundInfo").textContent = total ? "이번 바퀴 " + done + " / " + total : "";
+    $("roundReset").hidden = !done;
+  }
+  $("roundReset").addEventListener("click", () => {
+    rounds[quizCat] = []; saveRounds();
+    current = null; revealed = false; picked = -1;
+    render(); showToast("처음부터 다시 섞었어요.", null);
+  });
+
   function pickNext() {
     const pool = quizPool();
     if (!pool.length) { current = null; return; }
-    const cands = pool.length > 1 ? pool.filter(x => x.id !== lastId) : pool;
+    const done = new Set(roundDone());
+    let remain = pool.filter(x => !done.has(x.id));
+    if (!remain.length) {
+      // 한 바퀴 완료 → 새 바퀴 시작 (방금 푼 문제가 바로 다시 나오지 않게)
+      rounds[quizCat] = []; saveRounds();
+      remain = pool;
+      if (sessionCount > 0) showToast("한 바퀴 다 풀었어요! 다시 섞어서 새 바퀴를 시작해요.", null);
+    }
+    const cands = remain.length > 1 ? remain.filter(x => x.id !== lastId) : remain;
     current = cands[Math.floor(Math.random() * cands.length)].id;
     revealed = false; picked = -1;
   }
@@ -823,6 +859,7 @@ E: 해설 (선택, 여러 줄 가능)
 
   function next(it, drop) {
     lastId = it.id; sessionCount++;
+    markDone(it.id);
     progress.reviews[it.id] = reviewsOf(it.id) + 1;
     if (drop) progress.off[it.id] = true;
     saveProgress();
@@ -1235,6 +1272,7 @@ E: 해설 (선택, 여러 줄 가능)
     renderAdmin();
     renderQuizCat();
     if (view === "quiz") renderQuiz();
+    renderRound();
     if (view === "list") renderList();
   }
 
