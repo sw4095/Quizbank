@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-11-12T05:40:00Z",
+  "updated": "2026-11-12T05:41:05Z",
   "questions": [
     {
       "id": "qmw8pjktdlpofr",
@@ -1122,6 +1122,26 @@
         "data/img/q1a1ce4525775hkw7-exp.png"
       ],
       "created": 1794462000503
+    },
+    {
+      "id": "q1a1ce4621fanvatg",
+      "q": "바하의 축 공식에 따르면 축의 길이 1m에 대해 처짐을 몇 [mm]이내로 오도록 설계해야 하는가?",
+      "a": "",
+      "e": "정답 ② 0.33\n바하의 축 공식: 축 길이 1m당 처짐 0.333mm 이내, 비틀림각 0.25° 이내 (아래 표 참고)",
+      "type": "theory",
+      "core": false,
+      "choices": [
+        "33",
+        "0.33",
+        "3.3",
+        "0.033"
+      ],
+      "correct": 1,
+      "qimgs": [],
+      "imgs": [
+        "data/img/q1a1ce4621fanvatg-exp.png"
+      ],
+      "created": 1794462065146
     }
   ]
 }
