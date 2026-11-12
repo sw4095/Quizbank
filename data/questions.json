@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-11-12T04:48:57Z",
+  "updated": "2026-11-12T04:49:32Z",
   "questions": [
     {
       "id": "qmw8pjktdlpofr",
@@ -1005,6 +1005,26 @@
         "data/img/q1a1ce1666e19g0vh-exp.png"
       ],
       "created": 1794458937057
+    },
+    {
+      "id": "q1a1ce16f09007uil",
+      "q": "일반적인 코터의 기울기는 얼마인가?",
+      "a": "",
+      "e": "정답 ② 1/20\n코터의 기울기는 아래 표 참고",
+      "type": "theory",
+      "core": false,
+      "choices": [
+        "1/5",
+        "1/20",
+        "1/50",
+        "1/100"
+      ],
+      "correct": 1,
+      "qimgs": [],
+      "imgs": [
+        "data/img/q1a1ce16f09007uil-exp.png"
+      ],
+      "created": 1794458972304
     }
   ]
 }
