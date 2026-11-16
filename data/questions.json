@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-11-16T08:22:51Z",
+  "updated": "2026-11-16T08:35:06Z",
   "questions": [
     {
       "id": "qmw8pjktdlpofr",
@@ -1278,6 +1278,26 @@
         "data/img/q1a1e36b8f8a2l456-exp2.jpg"
       ],
       "created": 1794816839562
+    },
+    {
+      "id": "q1a1e37ee4abxfmyl",
+      "q": "아래 그림은 길이가 2L인 외팔보이다. 자유단에 하중 2P가 가해지고 있다. 이때, 보의 끝 지점 (x=2L)에서의 처짐각은?",
+      "a": "",
+      "e": "",
+      "type": "calc",
+      "core": false,
+      "choices": [
+        "−PL²/EI",
+        "−2PL²/EI",
+        "−3PL²/EI",
+        "−4PL²/EI"
+      ],
+      "correct": 3,
+      "qimgs": [
+        "data/img/q1a1e37ee4abxfmyl-q.png"
+      ],
+      "imgs": [],
+      "created": 1794818106539
     }
   ]
 }
