@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-11-16T08:35:06Z",
+  "updated": "2026-11-16T08:36:16Z",
   "questions": [
     {
       "id": "qmw8pjktdlpofr",
@@ -1283,7 +1283,7 @@
       "id": "q1a1e37ee4abxfmyl",
       "q": "아래 그림은 길이가 2L인 외팔보이다. 자유단에 하중 2P가 가해지고 있다. 이때, 보의 끝 지점 (x=2L)에서의 처짐각은?",
       "a": "",
-      "e": "",
+      "e": "정답 ④ −4PL²/EI\n외팔보 자유단 처짐각 θ = Fl²/(2EI) = 2P × (2L)² / (2EI) = 4PL²/EI\n풀이는 아래 사진 참고 (면적모멘트법, 이중적분법)",
       "type": "calc",
       "core": false,
       "choices": [
@@ -1296,7 +1296,9 @@
       "qimgs": [
         "data/img/q1a1e37ee4abxfmyl-q.png"
       ],
-      "imgs": [],
+      "imgs": [
+        "data/img/q1a1e37ee4abxfmyl-exp.jpg"
+      ],
       "created": 1794818106539
     }
   ]
