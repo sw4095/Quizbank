@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-11-12T07:31:36Z",
+  "updated": "2026-11-16T08:13:59Z",
   "questions": [
     {
       "id": "qmw8pjktdlpofr",
@@ -1256,6 +1256,28 @@
         "data/img/q1a1cea778beh05p7-exp.png"
       ],
       "created": 1794468444350
+    },
+    {
+      "id": "q1a1e36b8f8a2l456",
+      "q": "아래 그림과 같이 어떤 재료에 서로 직각으로 인장응력 400[Mpa], 압축응력 800[Mpa]이 작용한다. 이때, 재료 내부에 발생하는 최대전단응력[τmax]은 얼마인가?",
+      "a": "",
+      "e": "정답 ④ 600[Mpa]\n최대전단응력 = 모어원의 반지름 = (σ1 − σ2) / 2\n= (400 − (−800)) / 2 = 1200 / 2 = 600[Mpa]\n모어원 풀이는 아래 사진 참고",
+      "type": "calc",
+      "core": false,
+      "choices": [
+        "200[Mpa]",
+        "400[Mpa]",
+        "500[Mpa]",
+        "600[Mpa]"
+      ],
+      "correct": 3,
+      "qimgs": [
+        "data/img/q1a1e36b8f8a2l456-q.png"
+      ],
+      "imgs": [
+        "data/img/q1a1e36b8f8a2l456-exp.png"
+      ],
+      "created": 1794816839562
     }
   ]
 }
