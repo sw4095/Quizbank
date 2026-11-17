@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-11-17T07:21:52Z",
+  "updated": "2026-11-17T07:24:35Z",
   "questions": [
     {
       "id": "qmw8pjktdlpofr",
@@ -1577,6 +1577,46 @@
       "qimgs": [],
       "imgs": [],
       "created": 1794900112957
+    },
+    {
+      "id": "q1a1e864b08ff4rpp",
+      "q": "다음 중 주물사 재사용을 위해 실시하는 주물사시험법 종류만을 모두 고른 것은?\n\n㉮ 점착력시험　㉯ 통기도시험\n㉰ 내화도시험　㉱ 크리프시험\n㉲ 피로시험",
+      "a": "",
+      "e": "",
+      "type": "mach",
+      "core": false,
+      "choices": [
+        "㉮, ㉯",
+        "㉮, ㉯, ㉰",
+        "㉮, ㉯, ㉰, ㉱",
+        "㉮, ㉯, ㉰, ㉲"
+      ],
+      "correct": 1,
+      "qimgs": [],
+      "imgs": [
+        "data/img/q1a1e864b08ff4rpp-exp.png"
+      ],
+      "created": 1794900275343
+    },
+    {
+      "id": "q1a1e864b090bgqe8",
+      "q": "주물 표면 불량의 한 종류로 주형 강도가 부족하거나 쇳물과 주형의 충돌로 발생하는 것은?",
+      "a": "",
+      "e": "",
+      "type": "mach",
+      "core": false,
+      "choices": [
+        "스캡",
+        "와시",
+        "버클",
+        "scar"
+      ],
+      "correct": 2,
+      "qimgs": [],
+      "imgs": [
+        "data/img/q1a1e864b090bgqe8-exp.png"
+      ],
+      "created": 1794900275344
     }
   ]
 }
