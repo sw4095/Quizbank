@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-11-17T07:24:35Z",
+  "updated": "2026-11-17T07:31:08Z",
   "questions": [
     {
       "id": "qmw8pjktdlpofr",
@@ -1617,6 +1617,87 @@
         "data/img/q1a1e864b090bgqe8-exp.png"
       ],
       "created": 1794900275344
+    },
+    {
+      "id": "q1a1e86ab140yg6sf",
+      "q": "다음 중 탕구계의 순서로 가장 옳은 것은?",
+      "a": "",
+      "e": "",
+      "type": "mach",
+      "core": false,
+      "choices": [
+        "쇳물받이 → 탕구 → 탕도 → 탕류 → 주입구",
+        "쇳물받이 → 탕류 → 탕구 → 탕도 → 주입구",
+        "쇳물받이 → 탕구 → 탕류 → 탕도 → 주입구",
+        "쇳물받이 → 탕도 → 탕구 → 탕류 → 주입구",
+        "쇳물받이 → 주입구 → 탕류 → 탕구 → 탕도"
+      ],
+      "correct": 1,
+      "qimgs": [],
+      "imgs": [
+        "data/img/q1a1e86ab140yg6sf-exp.png"
+      ],
+      "created": 1794900668736
+    },
+    {
+      "id": "q1a1e86ab141whtdq",
+      "q": "주물의 모서리 부분에 생기는 인(P)과 황(S)의 편석으로 불순물이 긴 띠로 나타나는 현상은?",
+      "a": "",
+      "e": "",
+      "type": "mach",
+      "core": false,
+      "choices": [
+        "미스런",
+        "수축공",
+        "고스트라인",
+        "콜드셧"
+      ],
+      "correct": 2,
+      "qimgs": [],
+      "imgs": [
+        "data/img/q1a1e86ab141whtdq-exp.png"
+      ],
+      "created": 1794900668737
+    },
+    {
+      "id": "q1a1e86ab142czku2",
+      "q": "다음 중 ICFTA에서 지정한 7가지 주물 표면 결함의 종류로 옳지 못한 것은?",
+      "a": "",
+      "e": "",
+      "type": "mach",
+      "core": false,
+      "choices": [
+        "scar",
+        "표면 겹침",
+        "금속 돌출",
+        "콜드셧"
+      ],
+      "correct": 2,
+      "qimgs": [],
+      "imgs": [
+        "data/img/q1a1e86ab142czku2-exp.png"
+      ],
+      "created": 1794900668738
+    },
+    {
+      "id": "q1a1e86ab1435ib3h",
+      "q": "주물 체적에 대한 수축률은 길이 방향의 몇 배인가?",
+      "a": "",
+      "e": "",
+      "type": "mach",
+      "core": false,
+      "choices": [
+        "2배",
+        "3배",
+        "4배",
+        "5배"
+      ],
+      "correct": 1,
+      "qimgs": [],
+      "imgs": [
+        "data/img/q1a1e86ab1435ib3h-exp.png"
+      ],
+      "created": 1794900668739
     }
   ]
 }
