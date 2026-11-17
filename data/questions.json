@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-11-17T07:45:50Z",
+  "updated": "2026-11-17T09:05:58Z",
   "questions": [
     {
       "id": "qmw8pjktdlpofr",
@@ -1839,6 +1839,26 @@
         "data/img/q1a1e87827355l2p4-exp.png"
       ],
       "created": 1794901550901
+    },
+    {
+      "id": "q1a1e8c181f4fx48d",
+      "q": "지름 2[cm], 길이 0.2[m]인 원형봉이 인장하중 100[N]을 받을 때, 길이는 0.00016[m] 만큼 늘어나고 지름은 0.0004[cm] 만큼 줄었다. 이 원형봉의 체적변화량은? [단, π=3]",
+      "a": "",
+      "e": "",
+      "type": "calc",
+      "core": false,
+      "choices": [
+        "0.012m³",
+        "0.024m³",
+        "0.012cm³",
+        "0.024cm³"
+      ],
+      "correct": 3,
+      "qimgs": [],
+      "imgs": [
+        "data/img/q1a1e8c181f4fx48d-exp.png"
+      ],
+      "created": 1794906358260
     }
   ]
 }
