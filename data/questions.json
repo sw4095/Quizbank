@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-11-16T08:36:16Z",
+  "updated": "2026-11-17T06:15:02Z",
   "questions": [
     {
       "id": "qmw8pjktdlpofr",
@@ -1300,6 +1300,26 @@
         "data/img/q1a1e37ee4abxfmyl-exp.jpg"
       ],
       "created": 1794818106539
+    },
+    {
+      "id": "q1a1e8250380xu4po",
+      "q": "600[kgf]의 인장하중을 받는 원형봉의 지름이 4[cm]일 때, 원형 봉에 발생하는 응력[N/m²]은? [단, π=3]",
+      "a": "",
+      "e": "정답 ② 4.9[MPa]\n풀이는 아래 사진 참고",
+      "type": "calc",
+      "core": false,
+      "choices": [
+        "0.5[MPa]",
+        "4.9[MPa]",
+        "0.5[KPa]",
+        "4.9[KPa]"
+      ],
+      "correct": 1,
+      "qimgs": [],
+      "imgs": [
+        "data/img/q1a1e8250380xu4po-exp.png"
+      ],
+      "created": 1794896102272
     }
   ]
 }
