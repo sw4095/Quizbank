@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-11-18T11:02:14Z",
+  "updated": "2026-11-18T11:08:19Z",
   "questions": [
     {
       "id": "qmw8pjktdlpofr",
@@ -2049,6 +2049,50 @@
         "data/img/q1a1ee4fe560zl518-exp2.png"
       ],
       "created": 1794999575904
+    },
+    {
+      "id": "q1a1ee57e3e5osba3",
+      "q": "길이가 L, 비중량이 γ인 원추형봉이 아래 그림처럼 천장에 매달려 있다. 이때, 봉의 자중으로 인한 응력과 변형량은 각각 얼마인가?",
+      "a": "",
+      "e": "",
+      "type": "calc",
+      "core": false,
+      "choices": [
+        "σ = γL,  λ = γL²/(2E)",
+        "σ = γL/3,  λ = γL²/(2E)",
+        "σ = γL/3,  λ = γL²/(6E)",
+        "σ = γL/6,  λ = γL²/(3E)"
+      ],
+      "correct": 2,
+      "qimgs": [
+        "data/img/q1a1ee57e3e5osba3-q.png"
+      ],
+      "imgs": [
+        "data/img/q1a1ee57e3e5osba3-exp.png"
+      ],
+      "created": 1795000099813
+    },
+    {
+      "id": "q1a1ee57e3e6trfrm",
+      "q": "다음 여러 그림 중에서 변동하중을 의미하는 것은 무엇인가?",
+      "a": "",
+      "e": "",
+      "type": "theory",
+      "core": false,
+      "choices": [
+        "①번 그래프",
+        "②번 그래프",
+        "③번 그래프",
+        "④번 그래프"
+      ],
+      "correct": 1,
+      "qimgs": [
+        "data/img/q1a1ee57e3e6trfrm-q.png"
+      ],
+      "imgs": [
+        "data/img/q1a1ee57e3e6trfrm-exp.png"
+      ],
+      "created": 1795000099814
     }
   ]
 }
