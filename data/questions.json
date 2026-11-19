@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-11-19T07:44:31Z",
+  "updated": "2026-11-19T08:03:45Z",
   "questions": [
     {
       "id": "qmw8pjktdlpofr",
@@ -2197,6 +2197,26 @@
         "data/img/q1a1f2c3a8756tcam-exp.png"
       ],
       "created": 1795074271349
+    },
+    {
+      "id": "q1a1f2d543b02na3a",
+      "q": "외경이 3D, 내경이 D인 중공축 A와 외경이 3D인 중실축 B가 있다. 이때, 각각의 축이 전달할 수 있는 최대 비틀림 모멘트의 비 (T_A/T_B)는? [단, 재료는 동일]",
+      "a": "",
+      "e": "",
+      "type": "calc",
+      "core": false,
+      "choices": [
+        "81/80",
+        "80/81",
+        "27/26",
+        "26/27"
+      ],
+      "correct": 1,
+      "qimgs": [],
+      "imgs": [
+        "data/img/q1a1f2d543b02na3a-exp.png"
+      ],
+      "created": 1795075425200
     }
   ]
 }
