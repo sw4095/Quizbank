@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-11-19T08:03:45Z",
+  "updated": "2026-11-19T08:04:39Z",
   "questions": [
     {
       "id": "qmw8pjktdlpofr",
@@ -2217,6 +2217,28 @@
         "data/img/q1a1f2d543b02na3a-exp.png"
       ],
       "created": 1795075425200
+    },
+    {
+      "id": "q1a1f2d61929fxzel",
+      "q": "아래 그림은 응력-변형률 선도이다. 이때, HG가 의미하는 것은 무엇인가?",
+      "a": "",
+      "e": "",
+      "type": "theory",
+      "core": false,
+      "choices": [
+        "잔류변형",
+        "비례한도",
+        "탄성복원",
+        "소성"
+      ],
+      "correct": 2,
+      "qimgs": [
+        "data/img/q1a1f2d61929fxzel-q.png"
+      ],
+      "imgs": [
+        "data/img/q1a1f2d61929fxzel-exp.png"
+      ],
+      "created": 1795075479849
     }
   ]
 }
