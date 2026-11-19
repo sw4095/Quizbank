@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-11-19T07:31:33Z",
+  "updated": "2026-11-19T07:44:31Z",
   "questions": [
     {
       "id": "qmw8pjktdlpofr",
@@ -2175,6 +2175,28 @@
         "data/img/q1a1f2b7cbdfgu134-exp.png"
       ],
       "created": 1795073493983
+    },
+    {
+      "id": "q1a1f2c3a8756tcam",
+      "q": "아래 금속 구조물 중에서 온도변화로 인해 내부응력이 발생되는 구조물을 모두 고르면 무엇인가?",
+      "a": "",
+      "e": "정답 ③ ⓐ, ⓓ\n열응력은 온도 변화로 늘어나거나 줄어들려는 것을 막을 때 생긴다.\nⓐ 양쪽 고정, ⓓ 세로 부분이 바닥에 막힘 → 발생 / ⓑ, ⓒ 롤러 쪽으로 자유롭게 늘어남 → 없음",
+      "type": "theory",
+      "core": false,
+      "choices": [
+        "ⓐ",
+        "ⓒ",
+        "ⓐ, ⓓ",
+        "ⓑ, ⓒ, ⓓ"
+      ],
+      "correct": 2,
+      "qimgs": [
+        "data/img/q1a1f2c3a8756tcam-q.png"
+      ],
+      "imgs": [
+        "data/img/q1a1f2c3a8756tcam-exp.png"
+      ],
+      "created": 1795074271349
     }
   ]
 }
