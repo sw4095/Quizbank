@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-11-21T07:14:20Z",
+  "updated": "2026-11-21T08:02:18Z",
   "questions": [
     {
       "id": "qmw8pjktdlpofr",
@@ -2259,6 +2259,26 @@
         "data/img/q1a1fcf4bd0fcolyc-exp.png"
       ],
       "created": 1795245260047
+    },
+    {
+      "id": "q1a1fd20a9e2osziw",
+      "q": "오일러의 좌굴 응력에 대한 설명으로 옳지 못한 것은?",
+      "a": "",
+      "e": "",
+      "type": "theory",
+      "core": false,
+      "choices": [
+        "길이의 제곱에 반비례한다.",
+        "탄성계수에 비례한다.",
+        "세장비의 제곱에 비례한다.",
+        "단면의 회전반경의 제곱에 비례한다."
+      ],
+      "correct": 2,
+      "qimgs": [],
+      "imgs": [
+        "data/img/q1a1fd20a9e2osziw-exp.png"
+      ],
+      "created": 1795248138722
     }
   ]
 }
