@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-11-21T10:35:43Z",
+  "updated": "2026-11-21T10:37:53Z",
   "questions": [
     {
       "id": "qmw8pjktdlpofr",
@@ -2321,6 +2321,28 @@
         "data/img/q1a1fdad1e269xpgz-exp.png"
       ],
       "created": 1795257343526
+    },
+    {
+      "id": "q1a1fdaf1b3cb7gfv",
+      "q": "아래 응력 - 변형률 선도에서 (A), (B), (C), (D)가 각각 의미하는 것은?",
+      "a": "",
+      "e": "",
+      "type": "theory",
+      "core": false,
+      "choices": [
+        "선형영역, 탄성영역, 변형경화, 네킹",
+        "선형영역, 항복영역, 변형경화, 네킹",
+        "선형영역, 완전소성, 네킹, 변형경화",
+        "선형영역, 항복영역, 네킹, 변형경화"
+      ],
+      "correct": 1,
+      "qimgs": [
+        "data/img/q1a1fdaf1b3cb7gfv-q.png"
+      ],
+      "imgs": [
+        "data/img/q1a1fdaf1b3cb7gfv-exp.png"
+      ],
+      "created": 1795257473852
     }
   ]
 }
