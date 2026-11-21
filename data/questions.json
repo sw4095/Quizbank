@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-11-21T08:02:18Z",
+  "updated": "2026-11-21T08:07:28Z",
   "questions": [
     {
       "id": "qmw8pjktdlpofr",
@@ -2279,6 +2279,26 @@
         "data/img/q1a1fd20a9e2osziw-exp.png"
       ],
       "created": 1795248138722
+    },
+    {
+      "id": "q1a1fd256334tclfe",
+      "q": "단면적이 0.5m²인 막대에 60MN의 전단하중이 작용한다. 이 막대의 전단변형률(rad)은? [단, 막대의 전단탄성계수는 1.2GPa]",
+      "a": "",
+      "e": "",
+      "type": "calc",
+      "core": false,
+      "choices": [
+        "0.01",
+        "0.1",
+        "1",
+        "10"
+      ],
+      "correct": 1,
+      "qimgs": [],
+      "imgs": [
+        "data/img/q1a1fd256334tclfe-exp.png"
+      ],
+      "created": 1795248448308
     }
   ]
 }
