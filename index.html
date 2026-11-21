@@ -761,6 +761,7 @@ E: 해설 (선택, 여러 줄 가능)
         it.core ? el("span", { class: "pill core", text: "코어" }) : null,
         el("span", { text: "이번에 푼 문제 " + sessionCount + "개" })),
       el("span", { class: "row", style: "gap:4px 10px" },
+        admin ? el("button", { type: "button", class: "btn small", text: "수정", onclick: () => { editReturn = "quiz"; startEdit(it); } }) : null,
         moveToTheoryBtn(it),
         scoreEl(it.id),
         el("span", { text: (quizCat === "all" ? "출제 중 " : TYPE_LABEL[quizCat] + " ") + quizPool().length + "문제" + (rv ? " · 이 문제 " + rv + "번 봄" : "") }))));
@@ -1058,7 +1059,7 @@ E: 해설 (선택, 여러 줄 가능)
         }, "문제 수정: " + label(q));
         const keep = qimgs.concat(imgs);
         for (const p of before.filter(p => !keep.includes(p))) { try { await ghDelete(p, "사진 삭제: " + p); } catch (err) {} }
-        endEdit(); setView("list"); showToast("수정했어요.", null);
+        const back = editReturn; endEdit(); setView(back); showToast("수정했어요.", null);
       } else {
         await mutateQuestions(list => { list.push({ id, q, a, e: ex, type: draftType, core: coreOf("formOne"), choices, correct, qimgs, imgs, created: Date.now() }); return list; }, "문제 추가: " + label(q));
         clearForm(); msg.textContent = "저장했어요. 다음 문제를 입력하세요."; $("inQ").focus();
@@ -1066,7 +1067,7 @@ E: 해설 (선택, 여러 줄 가능)
     } catch (err) { msg.textContent = friendly(err); }
     busy = false; $("saveOne").disabled = false;
   });
-  $("cancelEdit").addEventListener("click", () => { endEdit(); setView("list"); });
+  $("cancelEdit").addEventListener("click", () => { const back = editReturn; endEdit(); setView(back); });
 
   const TKEY = "quizbank.lasttype.v1";
   let draftType = "theory";
@@ -1084,6 +1085,7 @@ E: 해설 (선택, 여러 줄 가능)
   const coreOf = (formId) => !!document.querySelector("#" + formId + " .core-input").checked;
   const setCore = (formId, v) => { document.querySelector("#" + formId + " .core-input").checked = !!v; };
   function clearForm() { setCore("formOne", false); $("inQ").value = ""; $("inA").value = ""; $("inE").value = ""; drafts.Q = []; drafts.E = []; renderThumbs(); chDraft = []; chCorrect = -1; renderChoices(); }
+  let editReturn = "list";   // 수정을 마치면 돌아갈 화면 (문제 풀기에서 눌렀으면 다시 그 문제로)
   function startEdit(it) {
     if (!admin) return;
     editingId = it.id;
@@ -1098,7 +1100,7 @@ E: 해설 (선택, 여러 줄 가능)
     setMode(false); setView("add"); $("inQ").focus();
   }
   function endEdit() {
-    editingId = null; clearForm();
+    editingId = null; editReturn = "list"; clearForm();
     try { setDraftType(localStorage.getItem(TKEY) || "theory"); } catch (e) { setDraftType("theory"); }
     $("saveOne").textContent = "저장"; $("cancelEdit").hidden = true; $("oneMsg").textContent = "";
   }
@@ -1202,7 +1204,7 @@ E: 해설 (선택, 여러 줄 가능)
         (() => { const sc = scoreEl(it.id); if (sc) sc.classList.add("hint"); return sc; })(),
         el("span", { class: "spacer" }),
         el("button", { class: "btn small", text: off ? "다시 출제" : "출제 제외", onclick: () => { if (off) delete progress.off[it.id]; else progress.off[it.id] = true; saveProgress(); render(); } }),
-        admin ? el("button", { class: "btn small", text: "수정", onclick: () => startEdit(it) }) : null,
+        admin ? el("button", { class: "btn small", text: "수정", onclick: () => { editReturn = "list"; startEdit(it); } }) : null,
         !admin ? null : confirmDel === it.id
           ? el("button", { class: "btn small drop", text: "정말 삭제", onclick: () => { confirmDel = null; removeQuestion(it); } })
           : el("button", { class: "btn small", text: "삭제", onclick: () => { confirmDel = it.id; renderList(); } }));
