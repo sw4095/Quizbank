@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-11-21T08:07:28Z",
+  "updated": "2026-11-21T08:08:18.706Z",
   "questions": [
     {
       "id": "qmw8pjktdlpofr",
@@ -2265,7 +2265,7 @@
       "q": "오일러의 좌굴 응력에 대한 설명으로 옳지 못한 것은?",
       "a": "",
       "e": "",
-      "type": "theory",
+      "type": "calc",
       "core": false,
       "choices": [
         "길이의 제곱에 반비례한다.",
