@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-11-19T08:04:39Z",
+  "updated": "2026-11-21T07:14:20Z",
   "questions": [
     {
       "id": "qmw8pjktdlpofr",
@@ -2239,6 +2239,26 @@
         "data/img/q1a1f2d61929fxzel-exp.png"
       ],
       "created": 1795075479849
+    },
+    {
+      "id": "q1a1fcf4bd0fcolyc",
+      "q": "길이 L의 외팔보 중앙에 집중하중 P가 작용할 때의 최대 처짐량을 δ₁이라고 하며 길이 L의 외팔보에 균일분포하중 ω가 작용할 때의 최대 처짐량을 δ₂라고 할 때, δ₁/δ₂는 얼마인가? [단, P=ωL]",
+      "a": "",
+      "e": "",
+      "type": "calc",
+      "core": false,
+      "choices": [
+        "1/6",
+        "6",
+        "5/6",
+        "6/5"
+      ],
+      "correct": 2,
+      "qimgs": [],
+      "imgs": [
+        "data/img/q1a1fcf4bd0fcolyc-exp.png"
+      ],
+      "created": 1795245260047
     }
   ]
 }
