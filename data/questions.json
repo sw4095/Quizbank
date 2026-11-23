@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-11-23T04:14:17Z",
+  "updated": "2026-11-23T04:19:26Z",
   "questions": [
     {
       "id": "qmw8pjktdlpofr",
@@ -2363,6 +2363,26 @@
         "data/img/q1a2069c9e5b78fdv-exp.png"
       ],
       "created": 1795407257179
+    },
+    {
+      "id": "q1a206a156a6y18oe",
+      "q": "직경이 d인 원형 단면의 원주에 접하는 축에 관한 단면 2차 모멘트는?",
+      "a": "",
+      "e": "",
+      "type": "calc",
+      "core": false,
+      "choices": [
+        "(3/32)πd⁴",
+        "(5/32)πd⁴",
+        "(3/64)πd⁴",
+        "(5/64)πd⁴"
+      ],
+      "correct": 3,
+      "qimgs": [],
+      "imgs": [
+        "data/img/q1a206a156a6y18oe-exp.png"
+      ],
+      "created": 1795407566502
     }
   ]
 }
