@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-11-23T05:01:43Z",
+  "updated": "2026-11-23T05:02:22Z",
   "questions": [
     {
       "id": "qmw8pjktdlpofr",
@@ -2427,6 +2427,26 @@
         "data/img/q1a206c1b11357g02-exp2.png"
       ],
       "created": 1795409686803
+    },
+    {
+      "id": "q1a206c8a5b70kg9x",
+      "q": "S-N 곡선에서 S와 N은 각각 무엇을 의미하는가?",
+      "a": "",
+      "e": "",
+      "type": "theory",
+      "core": false,
+      "choices": [
+        "S: 안전율, N: 반복횟수",
+        "S: 응력, N: 회전수",
+        "S: 응력, N: 반복횟수",
+        "S: 안전율, N: 회전수"
+      ],
+      "correct": 2,
+      "qimgs": [],
+      "imgs": [
+        "data/img/q1a206c8a5b70kg9x-exp.png"
+      ],
+      "created": 1795410142647
     }
   ]
 }
