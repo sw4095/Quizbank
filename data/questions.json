@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-11-23T05:02:22Z",
+  "updated": "2026-11-23T05:10:49Z",
   "questions": [
     {
       "id": "qmw8pjktdlpofr",
@@ -2447,6 +2447,28 @@
         "data/img/q1a206c8a5b70kg9x-exp.png"
       ],
       "created": 1795410142647
+    },
+    {
+      "id": "q1a206d06236asg1j",
+      "q": "아래 그림은 전단응력에 의해 발생한 전단변형률을 도식화 한 것이다. 이때, θ가 6°일 때, 전단변형량[mm]은 약 얼마인가? [단, 원래의 높이 L은 30cm]",
+      "a": "",
+      "e": "",
+      "type": "calc",
+      "core": false,
+      "choices": [
+        "15",
+        "18",
+        "30",
+        "36"
+      ],
+      "correct": 2,
+      "qimgs": [
+        "data/img/q1a206d06236asg1j-q.png"
+      ],
+      "imgs": [
+        "data/img/q1a206d06236asg1j-exp.png"
+      ],
+      "created": 1795410649654
     }
   ]
 }
