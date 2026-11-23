@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-11-21T10:37:53Z",
+  "updated": "2026-11-23T04:14:17Z",
   "questions": [
     {
       "id": "qmw8pjktdlpofr",
@@ -2343,6 +2343,26 @@
         "data/img/q1a1fdaf1b3cb7gfv-exp.png"
       ],
       "created": 1795257473852
+    },
+    {
+      "id": "q1a2069c9e5b78fdv",
+      "q": "푸아송비와 관련된 설명으로 옳지 못한 것은?",
+      "a": "",
+      "e": "",
+      "type": "theory",
+      "core": false,
+      "choices": [
+        "일반적인 금속의 푸아송비는 0~0.5 사이이다.",
+        "철강의 푸아송비는 대략 0.28이다.",
+        "납의 푸아송비는 대략 0.33이다.",
+        "코르크의 푸아송비는 0이다."
+      ],
+      "correct": 2,
+      "qimgs": [],
+      "imgs": [
+        "data/img/q1a2069c9e5b78fdv-exp.png"
+      ],
+      "created": 1795407257179
     }
   ]
 }
