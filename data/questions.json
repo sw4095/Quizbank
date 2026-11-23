@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-11-23T04:19:26Z",
+  "updated": "2026-11-23T04:50:04Z",
   "questions": [
     {
       "id": "qmw8pjktdlpofr",
@@ -2383,6 +2383,28 @@
         "data/img/q1a206a156a6y18oe-exp.png"
       ],
       "created": 1795407566502
+    },
+    {
+      "id": "q1a206bd61f7spmsy",
+      "q": "아래 그림처럼 최대 분포하중이 ω인 삼각형 분포하중을 받는 부재가 있다. 이때, A 지점에서의 반력을 구하면 얼마인가?",
+      "a": "",
+      "e": "",
+      "type": "calc",
+      "core": false,
+      "choices": [
+        "ωL/2",
+        "ωL/4",
+        "ωL/8",
+        "ωL/10"
+      ],
+      "correct": 3,
+      "qimgs": [
+        "data/img/q1a206bd61f7spmsy-q.png"
+      ],
+      "imgs": [
+        "data/img/q1a206bd61f7spmsy-exp.png"
+      ],
+      "created": 1795409404407
     }
   ]
 }
