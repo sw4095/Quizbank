@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-11-23T11:19:41Z",
+  "updated": "2026-11-24T07:28:00Z",
   "questions": [
     {
       "id": "qmw8pjktdlpofr",
@@ -2639,6 +2639,28 @@
       "qimgs": [],
       "imgs": [],
       "created": 1795432781776
+    },
+    {
+      "id": "q1a20c74578aa0lgj",
+      "q": "타원의 도심 축에 대한 단면 2차 모멘트의 값은?",
+      "a": "",
+      "e": "",
+      "type": "calc",
+      "core": false,
+      "choices": [
+        "I = (π/2)ab³",
+        "I = (π/4)ab³",
+        "I = (π/6)ab³",
+        "I = (π/8)ab³"
+      ],
+      "correct": 1,
+      "qimgs": [
+        "data/img/q1a20c74578aa0lgj-q.png"
+      ],
+      "imgs": [
+        "data/img/q1a20c74578aa0lgj-exp.png"
+      ],
+      "created": 1795505280906
     }
   ]
 }
