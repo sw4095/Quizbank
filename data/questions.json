@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-11-24T07:37:56Z",
+  "updated": "2026-11-24T08:14:17Z",
   "questions": [
     {
       "id": "qmw8pjktdlpofr",
@@ -2658,7 +2658,7 @@
         "data/img/q1a20c74578aa0lgj-q.png"
       ],
       "imgs": [
-        "data/img/q1a20c74578aa0lgj-exp2.png"
+        "data/img/q1a20c74578aa0lgj-exp3.png"
       ],
       "created": 1795505280906
     },
@@ -2679,6 +2679,50 @@
       "qimgs": [],
       "imgs": [],
       "created": 1795505379999
+    },
+    {
+      "id": "q1a20c9eb514evbu5",
+      "q": "아래 그림과 같이 봉이 축 방향으로 하중을 받고 있다. 이때, BC 구간에 작용하고 있는 하중은 얼마인가?",
+      "a": "",
+      "e": "",
+      "type": "calc",
+      "core": false,
+      "choices": [
+        "-P",
+        "-2P",
+        "-4P",
+        "-8P"
+      ],
+      "correct": 1,
+      "qimgs": [
+        "data/img/q1a20c9eb514evbu5-q.png"
+      ],
+      "imgs": [
+        "data/img/q1a20c9eb514evbu5-exp.png"
+      ],
+      "created": 1795508057364
+    },
+    {
+      "id": "q1a20c9eb515sxiyo",
+      "q": "아래 그림과 같이 삼각형 모양의 분포하중을 받는 단순보가 있다. 이때, A-B 단면에 발생하는 전단력의 크기(N)는 얼마인가? [단, q=300N/m이다]",
+      "a": "",
+      "e": "",
+      "type": "calc",
+      "core": false,
+      "choices": [
+        "125",
+        "50",
+        "250",
+        "375"
+      ],
+      "correct": 0,
+      "qimgs": [
+        "data/img/q1a20c9eb515sxiyo-q.png"
+      ],
+      "imgs": [
+        "data/img/q1a20c9eb515sxiyo-exp.png"
+      ],
+      "created": 1795508057365
     }
   ]
 }
