@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-11-24T08:14:17Z",
+  "updated": "2026-11-24T08:26:41Z",
   "questions": [
     {
       "id": "qmw8pjktdlpofr",
@@ -2723,6 +2723,26 @@
         "data/img/q1a20c9eb515sxiyo-exp.png"
       ],
       "created": 1795508057365
+    },
+    {
+      "id": "q1a20caa11b0mmiwh",
+      "q": "카스틸리아노 정리로 옳은 것은 무엇인가?",
+      "a": "",
+      "e": "",
+      "type": "theory",
+      "core": false,
+      "choices": [
+        "δ = dU/dP,  θ = dU/dM",
+        "δ = dU/dM,  θ = dU/dP",
+        "δ = dP/dU,  θ = dM/dU",
+        "δ = dM/dU,  θ = dP/dU"
+      ],
+      "correct": 0,
+      "qimgs": [],
+      "imgs": [
+        "data/img/q1a20caa11b0mmiwh-exp.png"
+      ],
+      "created": 1795508801968
     }
   ]
 }
