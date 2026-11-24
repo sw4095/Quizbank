@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-11-24T08:53:58Z",
+  "updated": "2026-11-24T09:06:15Z",
   "questions": [
     {
       "id": "qmw8pjktdlpofr",
@@ -2783,6 +2783,28 @@
         "data/img/q1a20cc30ae98djwa-exp.png"
       ],
       "created": 1795510438633
+    },
+    {
+      "id": "q1a20cce4991qyaor",
+      "q": "어떤 기계재료의 응력 상태가 아래와 같을 때, 응력 상태를 모어원에 도시하면 어떻게 그려지는가?",
+      "a": "",
+      "e": "",
+      "type": "theory",
+      "core": false,
+      "choices": [
+        "①번 그림",
+        "②번 그림",
+        "③번 그림",
+        "④번 그림"
+      ],
+      "correct": 2,
+      "qimgs": [
+        "data/img/q1a20cce4991qyaor-q.png"
+      ],
+      "imgs": [
+        "data/img/q1a20cce4991qyaor-exp.png"
+      ],
+      "created": 1795511175569
     }
   ]
 }
