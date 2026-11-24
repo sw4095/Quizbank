@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-11-24T08:26:41Z",
+  "updated": "2026-11-24T08:40:37Z",
   "questions": [
     {
       "id": "qmw8pjktdlpofr",
@@ -2743,6 +2743,26 @@
         "data/img/q1a20caa11b0mmiwh-exp.png"
       ],
       "created": 1795508801968
+    },
+    {
+      "id": "q1a20cb6d2bfsepmk",
+      "q": "충격응력(σ) 및 충격신장(λ)은 정적응력(σ₀) 및 정적신장(λ₀)의 몇 배인가?",
+      "a": "",
+      "e": "갑자기 추를 낙하시키거나 문제에 h값이 주어지지 않으면 h = 0이다. → σ = 2σ₀, λ = 2λ₀",
+      "type": "theory",
+      "core": false,
+      "choices": [
+        "2배",
+        "3배",
+        "4배",
+        "5배"
+      ],
+      "correct": 0,
+      "qimgs": [],
+      "imgs": [
+        "data/img/q1a20cb6d2bfsepmk-exp.png"
+      ],
+      "created": 1795509637823
     }
   ]
 }
