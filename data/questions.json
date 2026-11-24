@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-11-24T09:06:15Z",
+  "updated": "2026-11-24T09:25:35Z",
   "questions": [
     {
       "id": "qmw8pjktdlpofr",
@@ -2805,6 +2805,26 @@
         "data/img/q1a20cce4991qyaor-exp.png"
       ],
       "created": 1795511175569
+    },
+    {
+      "id": "q1a20cdffc0fdvs6o",
+      "q": "다이에 소재를 넣고 통과시켜 기계의 힘으로 잡아당겨 단면적을 줄이고 길이 방향으로 늘리는 가공방법은?",
+      "a": "",
+      "e": "",
+      "type": "mach",
+      "core": false,
+      "choices": [
+        "인발",
+        "압출",
+        "압연",
+        "전조"
+      ],
+      "correct": 0,
+      "qimgs": [],
+      "imgs": [
+        "data/img/q1a20cdffc0fdvs6o-exp.png"
+      ],
+      "created": 1795512335375
     }
   ]
 }
