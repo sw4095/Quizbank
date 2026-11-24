@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-11-24T09:53:46Z",
+  "updated": "2026-11-24T09:56:26Z",
   "questions": [
     {
       "id": "qmw8pjktdlpofr",
@@ -2996,7 +2996,9 @@
       ],
       "correct": 1,
       "qimgs": [],
-      "imgs": [],
+      "imgs": [
+        "data/img/q1a20cf12e1dfaujm-die.png"
+      ],
       "created": 1795513462301
     },
     {
