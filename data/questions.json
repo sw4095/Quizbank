@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-11-24T08:40:37Z",
+  "updated": "2026-11-24T08:53:58Z",
   "questions": [
     {
       "id": "qmw8pjktdlpofr",
@@ -2763,6 +2763,26 @@
         "data/img/q1a20cb6d2bfsepmk-exp.png"
       ],
       "created": 1795509637823
+    },
+    {
+      "id": "q1a20cc30ae98djwa",
+      "q": "수직응력에 따른 탄성에너지에 대한 설명으로 옳은 것은?",
+      "a": "",
+      "e": "",
+      "type": "theory",
+      "core": false,
+      "choices": [
+        "응력의 제곱에 비례하고 탄성계수에 비례한다.",
+        "응력의 제곱에 비례하고 탄성계수에 반비례한다.",
+        "응력에 비례하고 탄성계수에 비례한다.",
+        "응력에 비례하고 탄성계수에 반비례한다."
+      ],
+      "correct": 1,
+      "qimgs": [],
+      "imgs": [
+        "data/img/q1a20cc30ae98djwa-exp.png"
+      ],
+      "created": 1795510438633
     }
   ]
 }
