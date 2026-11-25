@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-11-25T08:20:30Z",
+  "updated": "2026-11-25T08:21:18Z",
   "questions": [
     {
       "id": "qmw8pjktdlpofr",
@@ -3116,6 +3116,46 @@
         "data/img/q1a211cac142q59eh-exp.png"
       ],
       "created": 1795594830146
+    },
+    {
+      "id": "q1a211cb7e40nifr0",
+      "q": "핵반경의 정의를 옳게 서술한 것은 무엇인가?",
+      "a": "",
+      "e": "",
+      "type": "theory",
+      "core": false,
+      "choices": [
+        "최소응력, 즉 σmin=0으로 하는 편심거리를 말하며 압축응력만 일어나고 인장응력은 일어나지 않는다.",
+        "최대응력, 즉 σmax=0으로 하는 편심거리를 말하며 압축응력만 일어나고 인장응력은 일어나지 않는다.",
+        "최소응력, 즉 σmin=0으로 하는 편심거리를 말하며 인장응력만 일어나고 압축응력은 일어나지 않는다.",
+        "최대응력, 즉 σmax=0으로 하는 편심거리를 말하며 인장응력만 일어나고 압축응력은 일어나지 않는다."
+      ],
+      "correct": 0,
+      "qimgs": [],
+      "imgs": [
+        "data/img/q1a211cb7e40nifr0-exp.png"
+      ],
+      "created": 1795594878528
+    },
+    {
+      "id": "q1a211cb7e41awp7l",
+      "q": "기둥 설계식에서 단주, 중간주, 장주에 모두 적용이 가능한 공식은?",
+      "a": "",
+      "e": "",
+      "type": "theory",
+      "core": false,
+      "choices": [
+        "테트마이어(Tetmajer) 직선식",
+        "골든-랭킨(Gordon-Rankine) 공식",
+        "존슨(Johnson)의 포물선식",
+        "진리(Truth)의 기계식"
+      ],
+      "correct": 1,
+      "qimgs": [],
+      "imgs": [
+        "data/img/q1a211cb7e41awp7l-exp.png"
+      ],
+      "created": 1795594878529
     }
   ]
 }
