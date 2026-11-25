@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-11-25T07:45:28Z",
+  "updated": "2026-11-25T08:20:30Z",
   "questions": [
     {
       "id": "qmw8pjktdlpofr",
@@ -3096,6 +3096,26 @@
         "data/img/q1a211aaae7bg4vc7-exp.png"
       ],
       "created": 1795592728187
+    },
+    {
+      "id": "q1a211cac142q59eh",
+      "q": "다음 보기 중에서 재료역학의 중요한 창립자는 누구인가?",
+      "a": "",
+      "e": "",
+      "type": "theory",
+      "core": false,
+      "choices": [
+        "스티븐 티모셴코",
+        "볼츠만",
+        "아이작 뉴턴",
+        "카르노"
+      ],
+      "correct": 0,
+      "qimgs": [],
+      "imgs": [
+        "data/img/q1a211cac142q59eh-exp.png"
+      ],
+      "created": 1795594830146
     }
   ]
 }
