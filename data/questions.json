@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-11-25T07:42:12Z",
+  "updated": "2026-11-25T07:45:28Z",
   "questions": [
     {
       "id": "qmw8pjktdlpofr",
@@ -3036,6 +3036,66 @@
       "qimgs": [],
       "imgs": [],
       "created": 1795592532195
+    },
+    {
+      "id": "q1a211aaae79l6noy",
+      "q": "재료가 극한 강도에 도달하게 되면 파괴 단면이 수축하게 되는데 이 현상은?",
+      "a": "",
+      "e": "",
+      "type": "theory",
+      "core": false,
+      "choices": [
+        "영구 변형",
+        "잔류 변형",
+        "목조임 현상",
+        "파괴"
+      ],
+      "correct": 2,
+      "qimgs": [],
+      "imgs": [
+        "data/img/q1a211aaae79l6noy-exp.png"
+      ],
+      "created": 1795592728185
+    },
+    {
+      "id": "q1a211aaae7ahznbr",
+      "q": "바리뇽(Varignon)의 합 모멘트 정리는 무엇인가?",
+      "a": "",
+      "e": "",
+      "type": "theory",
+      "core": false,
+      "choices": [
+        "한 점에 대한 각 성분 모멘트 대수합은 합력 모멘트보다 크다.",
+        "한 점에 대한 각 성분 모멘트 대수합은 합력 모멘트보다 작다.",
+        "한 점에 대한 각 성분 모멘트 대수합은 합력 모멘트와 같다.",
+        "한 점에 대한 각 성분 모멘트 대수합은 합력 모멘트의 제곱에 비례한다."
+      ],
+      "correct": 2,
+      "qimgs": [],
+      "imgs": [
+        "data/img/q1a211aaae7ahznbr-exp.png"
+      ],
+      "created": 1795592728186
+    },
+    {
+      "id": "q1a211aaae7bg4vc7",
+      "q": "비틀림 탄성 에너지는 전단 응력에 의한 탄성에너지의 몇 배인가?",
+      "a": "",
+      "e": "",
+      "type": "theory",
+      "core": false,
+      "choices": [
+        "동일하다.",
+        "0.5배",
+        "2배",
+        "4배"
+      ],
+      "correct": 1,
+      "qimgs": [],
+      "imgs": [
+        "data/img/q1a211aaae7bg4vc7-exp.png"
+      ],
+      "created": 1795592728187
     }
   ]
 }
