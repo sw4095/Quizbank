@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#2346a8">
 <title>나만의 문제은행</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" onload="window.__katexReady && window.__katexReady()"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=Nanum+Myeongjo:wght@700;800&display=swap" rel="stylesheet">
@@ -78,8 +80,11 @@ button:focus-visible, textarea:focus-visible, input:focus-visible, label.btn:foc
 .answer-box { border-top: 1px dashed var(--line); padding-top: 18px; display: flex; flex-direction: column; gap: 14px; }
 .label { font-size: 12px; font-weight: 600; letter-spacing: .06em; color: var(--muted); margin-bottom: 2px; }
 .ans { font-size: 18px; font-weight: 600; white-space: pre-wrap; overflow-wrap: anywhere; }
-.ans span { background: linear-gradient(transparent 55%, var(--mark) 55%); }
+.ans > span { background: linear-gradient(transparent 55%, var(--mark) 55%); }
 .exp { white-space: pre-wrap; overflow-wrap: anywhere; }
+.math { white-space: nowrap; display: inline-block; margin: 3px 0; line-height: 1.2; }
+.math .katex { font-size: 1.08em; }
+.ans .math .katex span { background: none; }
 .photos { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
 .photos img { max-width: 100%; border-radius: 8px; border: 1px solid var(--line); cursor: zoom-in; display: block; }
 .cover {
@@ -644,14 +649,30 @@ E: 해설 (선택, 여러 줄 가능)
     let last = 0, m;
     text = String(text || "");
     while ((m = re.exec(text))) {
+      if (m.index > last) frag.appendChild(richMath(text.slice(last, m.index)));
+      const b = document.createElement("strong"); b.appendChild(richMath(m[1])); frag.appendChild(b);
+      last = re.lastIndex;
+    }
+    if (last < text.length) frag.appendChild(richMath(text.slice(last)));
+    return frag;
+  }
+  // $수식$ → KaTeX로 그린 수식 (예: $\dfrac{1}{2}$). KaTeX가 아직 안 불러와졌으면 글자 그대로
+  function richMath(text) {
+    const frag = document.createDocumentFragment();
+    const re = /\$([^$\n]+?)\$/g;
+    let last = 0, m;
+    while ((m = re.exec(text))) {
       if (m.index > last) frag.appendChild(document.createTextNode(text.slice(last, m.index)));
-      const b = document.createElement("strong"); b.textContent = m[1]; frag.appendChild(b);
+      const sp = document.createElement("span"); sp.className = "math";
+      if (window.katex) { try { katex.render(m[1], sp, { throwOnError: false }); } catch (e) { sp.textContent = m[1]; } }
+      else sp.textContent = m[1];
+      frag.appendChild(sp);
       last = re.lastIndex;
     }
     if (last < text.length) frag.appendChild(document.createTextNode(text.slice(last)));
     return frag;
   }
-  const plain = (t) => String(t || "").replace(/\[\/?작게\]/g, "").replace(/\*\*([\s\S]+?)\*\*/g, "$1");
+  const plain = (t) => String(t || "").replace(/\$([^$\n]+?)\$/g, (_, x) => x.replace(/\\d?frac\{([^{}]*)\}\{([^{}]*)\}/g, "$1/$2").replace(/[\\{}]/g, "")).replace(/\[\/?작게\]/g, "").replace(/\*\*([\s\S]+?)\*\*/g, "$1");
 
   function el(tag, attrs, ...kids) {
     const n = document.createElement(tag);
@@ -1277,6 +1298,8 @@ E: 해설 (선택, 여러 줄 가능)
     renderRound();
     if (view === "list") renderList();
   }
+  window.__katexReady = () => render();
+  if (window.katex) render();
 
   renderChoices();
   render();
